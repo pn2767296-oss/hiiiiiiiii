@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chúc dth ngủ ngoan ✨</title>
+    <title>dthh</title>
     <!-- Tải Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Tải Google Fonts hỗ trợ tiếng Việt mềm mại -->
@@ -28,7 +28,8 @@
             padding: 0;
             min-height: 100vh;
             min-height: 100dvh;
-            overflow: hidden;
+            overflow-x: hidden;
+            overflow-y: auto;
             font-family: 'Quicksand', sans-serif;
             background: radial-gradient(ellipse at bottom, var(--night-bottom) 0%, var(--night-mid) 45%, var(--night-top) 100%);
             color: #fff;
@@ -39,9 +40,9 @@
             font-family: 'Dancing Script', cursive;
         }
 
-        /* Hiệu ứng sao lấp lánh nền */
+        /* Sao lấp lánh nền */
         .star {
-            position: absolute;
+            position: fixed;
             background-color: #fff;
             border-radius: 50%;
             animation: twinkle var(--duration, 3s) ease-in-out infinite;
@@ -61,7 +62,6 @@
             }
         }
 
-        /* Đám mây trôi bồng bềnh */
         @keyframes floatCloud {
             0%, 100% {
                 transform: translateX(0px) translateY(0px);
@@ -79,7 +79,6 @@
             animation: floatCloud 9s ease-in-out infinite reverse;
         }
 
-        /* Mặt trăng tỏa sáng nhẹ */
         @keyframes moonGlow {
             0%, 100% {
                 filter: drop-shadow(0 0 15px rgba(254, 240, 138, 0.5));
@@ -95,91 +94,94 @@
             animation: moonGlow 6s ease-in-out infinite;
         }
 
-        /* Hiệu ứng rung lắc hộp quà thu hút sự chú ý */
+        /* Rung lắc từng hộp quà */
         @keyframes giftWobble {
             0%, 100% { transform: rotate(0deg) scale(1); }
-            15% { transform: rotate(-4deg) scale(1.03); }
-            30% { transform: rotate(4deg) scale(1.03); }
-            45% { transform: rotate(-3deg) scale(1.02); }
-            60% { transform: rotate(3deg) scale(1.02); }
+            15% { transform: rotate(-3.5deg) scale(1.03); }
+            30% { transform: rotate(3.5deg) scale(1.03); }
+            45% { transform: rotate(-2.5deg) scale(1.02); }
+            60% { transform: rotate(2.5deg) scale(1.02); }
             75% { transform: rotate(-1deg) scale(1.01); }
         }
 
         .gift-wobble {
-            animation: giftWobble 2.8s ease-in-out infinite;
+            animation: giftWobble var(--wobble-dur, 3s) ease-in-out infinite;
+            animation-delay: var(--wobble-delay, 0s);
             transform-origin: bottom center;
         }
 
         .gift-wobble:hover {
             animation-play-state: paused;
             transform: scale(1.05);
-            transition: transform 0.25s ease;
+            transition: transform 0.2s ease;
         }
 
-        /* Nắp hộp quà mở ra */
-        .gift-lid {
-            transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.6s ease;
-            transform-origin: 90% 80%;
-            z-index: 30;
+        /* Trạng thái các hộp còn lại bị khóa sau khi đã dùng 1 lượt mở */
+        .gift-card.locked {
+            opacity: 0.45;
+            filter: grayscale(0.45);
+            transition: opacity 0.5s ease, filter 0.5s ease;
         }
 
-        .gift-container.opened .gift-lid {
-            transform: translateY(-20px) translateX(115px) rotate(38deg) scale(0.88);
-            opacity: 0.35;
-            z-index: 15;
+        .gift-card.locked .gift-trigger {
+            cursor: not-allowed;
         }
 
-        /* Hào quang ấm áp bên trong hộp */
-        .inner-glow {
-            opacity: 0;
-            transition: opacity 0.8s ease;
-            background: radial-gradient(circle, rgba(255, 224, 130, 0.9) 0%, rgba(255, 167, 196, 0.4) 45%, transparent 75%);
-        }
-
-        .gift-container.opened .inner-glow {
+        .gift-card.locked .lock-badge {
             opacity: 1;
+            transform: scale(1);
         }
 
-        /* Tấm thiệp trồi lên từ bên trong hộp */
-        .greeting-card {
+        .lock-badge {
             opacity: 0;
-            transform: translateY(45px) scale(0.5);
-            pointer-events: none;
-            transition: all 0.9s cubic-bezier(0.22, 1, 0.36, 1);
-            transition-delay: 0.12s;
+            transform: scale(0.6);
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* Nắp hộp bật mở */
+        .gift-lid {
+            transition: transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.55s ease;
+            transform-origin: 90% 80%;
             z-index: 20;
         }
 
-        .gift-container.opened .greeting-card {
-            opacity: 1;
-            transform: translateY(-145px) scale(1);
-            pointer-events: auto;
-            z-index: 50;
+        .gift-card.opened .gift-lid {
+            transform: translateY(-20px) translateX(48px) rotate(36deg) scale(0.86);
+            opacity: 0.4;
+            z-index: 10;
+        }
+
+        /* Hào quang khi mở */
+        /* Pop-up lời chúc khi mở hộp (hiển thị nổi phía trên hộp để không làm giãn khoảng cách lưới) */
+        .message-bubble {
+            position: absolute;
+            bottom: calc(100% - 10px);
+            left: 50%;
+            width: 168px;
+            opacity: 0;
+            transform: translateX(-50%) translateY(10px) scale(0.82);
+            pointer-events: none;
+            transition: all 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+            z-index: 40;
         }
 
         @media (min-width: 640px) {
-            .gift-container.opened .greeting-card {
-                transform: translateY(-170px) scale(1);
+            .message-bubble {
+                width: 210px;
             }
         }
 
-        /* Hiệu ứng phát sáng chữ lời chúc */
+        .gift-card.opened .message-bubble {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0) scale(1);
+            pointer-events: auto;
+        }
+
         .warm-text-glow {
             color: #9d174d;
-            text-shadow: 0 0 12px rgba(244, 114, 182, 0.45), 0 1px 2px rgba(255, 255, 255, 0.9);
+            text-shadow: 0 0 10px rgba(244, 114, 182, 0.35), 0 1px 1px rgba(255, 255, 255, 0.9);
         }
 
-        /* Dòng hướng dẫn nhấp nháy nhẹ */
-        @keyframes pulseHint {
-            0%, 100% { opacity: 0.75; transform: translateY(0); }
-            50% { opacity: 1; transform: translateY(-3px); }
-        }
-
-        .hint-pulse {
-            animation: pulseHint 2.2s ease-in-out infinite;
-        }
-
-        /* Canvas pháo giấy */
         #confetti-canvas {
             position: fixed;
             inset: 0;
@@ -188,9 +190,22 @@
             pointer-events: none;
             z-index: 60;
         }
+
+        /* Hiệu ứng nốt nhạc bay nhẹ khi đang phát */
+        @keyframes musicBeat {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.18) rotate(-6deg); }
+        }
+
+        .music-playing .music-icon {
+            display: inline-block;
+            animation: musicBeat 1.2s ease-in-out infinite;
+        }
     </style>
 </head>
-<body class="relative flex flex-col items-center justify-center min-h-screen px-4">
+<body class="relative flex flex-col items-center justify-center min-h-screen px-4 py-6">
+    <!-- Thẻ phát nhạc ru MP3 đặt cùng thư mục với index.html -->
+    <audio id="lullabyAudio" src="nhac-ru.mp3" loop preload="auto"></audio>
 
     <!-- Lớp nền sao lấp lánh -->
     <div id="starfield" class="fixed inset-0 pointer-events-none z-0"></div>
@@ -198,135 +213,187 @@
     <!-- Canvas hiệu ứng pháo giấy, ngôi sao & trái tim bay tỏa -->
     <canvas id="confetti-canvas"></canvas>
 
-    <!-- Trang trí bầu trời: Mặt trăng khuyết & Đám mây dễ thương -->
-    <div class="fixed top-6 right-6 sm:top-10 sm:right-14 pointer-events-none z-10">
-        <!-- Mặt trăng khuyết SVG -->
-        <svg class="w-20 h-20 sm:w-28 sm:h-28 moon-animate" viewBox="0 0 100 100" fill="none">
+    <!-- Nút Bật/Tắt nhạc ru ở góc trên trái -->
+    <div class="fixed top-4 left-4 sm:top-6 sm:left-6 z-40 flex flex-col items-start">
+        <button id="musicToggleBtn" type="button" aria-label="Bật hoặc tắt nhạc chúc bé ngủ ngon"
+                class="flex items-center gap-2 px-3.5 py-2 rounded-full bg-white/15 hover:bg-white/25 active:scale-95 backdrop-blur-md border border-white/25 text-amber-100 text-xs sm:text-sm font-semibold shadow-lg transition">
+            <span class="music-icon text-sm sm:text-base">🎵</span>
+            <span id="musicStatusLabel">Nhạc ru: Tắt</span>
+        </button>
+    </div>
+
+    <!-- Bảng nhắc bật nhạc ở giữa màn hình khi vừa vào trang -->
+    <div id="musicIntroModal"
+         class="fixed inset-0 z-50 flex items-center justify-center px-4 bg-slate-950/60 backdrop-blur-sm transition-opacity duration-300">
+        <div class="w-full max-w-xs sm:max-w-sm rounded-3xl bg-gradient-to-br from-[#1d2240] to-[#2c254e] border border-pink-300/35 p-5 sm:p-6 text-center shadow-2xl">
+            <div class="text-3xl mb-2">🎵🌙</div>
+            <h2 class="font-script text-2xl sm:text-3xl text-amber-100 mb-1.5">
+                Nhớ bật nhạc trước nha
+            </h2>
+            <p class="text-xs sm:text-sm text-indigo-100/90 leading-relaxed mb-4">
+                Bật nhạc ru ở góc trên bên trái để nghe giai điệu dịu êm khi mở quà nhé dth ✨
+            </p>
+            <div class="flex items-center justify-center gap-2.5">
+                <button id="enableMusicFromModalBtn" type="button"
+                        class="px-4 py-2 rounded-full bg-pink-500/80 hover:bg-pink-500 active:scale-95 text-white text-xs sm:text-sm font-semibold shadow transition">
+                    Bật nhạc ngay 🎶
+                </button>
+                <button id="closeMusicModalBtn" type="button"
+                        class="px-4 py-2 rounded-full bg-white/15 hover:bg-white/25 active:scale-95 border border-white/25 text-amber-100 text-xs sm:text-sm font-semibold transition">
+                    Đóng
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mặt trăng khuyết -->
+    <div class="fixed top-4 right-4 sm:top-8 sm:right-12 pointer-events-none z-10">
+        <svg class="w-16 h-16 sm:w-24 sm:h-24 moon-animate" viewBox="0 0 100 100" fill="none">
             <path d="M68 15C45.9086 15 28 32.9086 28 55C28 77.0914 45.9086 95 68 95C73.2 95 78.16 94 82.7 92.2C66.8 89.2 54.8 75.2 54.8 58.3C54.8 39.2 70.3 23.7 89.4 23.7C90.6 23.7 91.8 23.8 93 23.9C86.2 18.3 77.5 15 68 15Z" fill="#FEF08A"/>
-            <!-- Sao nhỏ cạnh trăng -->
             <path d="M22 26L23.8 31.2L29 33L23.8 34.8L22 40L20.2 34.8L15 33L20.2 31.2L22 26Z" fill="#FDE047"/>
             <circle cx="80" cy="48" r="2" fill="#FEF9C3"/>
         </svg>
     </div>
 
-    <!-- Đám mây 1 -->
-    <div class="fixed top-16 left-4 sm:top-20 sm:left-16 opacity-35 pointer-events-none z-10 cloud-float-1">
-        <svg class="w-28 h-14 sm:w-36 sm:h-18" viewBox="0 0 120 60" fill="none">
+    <!-- Mây 1 -->
+    <div class="fixed top-12 left-2 sm:top-16 sm:left-12 opacity-30 pointer-events-none z-10 cloud-float-1">
+        <svg class="w-24 h-12 sm:w-32 sm:h-16" viewBox="0 0 120 60" fill="none">
             <path d="M25 50H95C106.046 50 115 41.0457 115 30C115 19.6 107.06 11.06 96.9 10.1C93.2 4.05 86.56 0 79 0C69.4 0 61.3 6.45 58.8 15.25C56.1 13.8 53 13 49.7 13C39.6 13 31.3 20.7 30.3 30.55C28.6 30.2 26.8 30 25 30C13.9543 30 5 38.9543 5 50H25Z" fill="#C7D2FE"/>
         </svg>
     </div>
 
-    <!-- Đám mây 2 -->
-    <div class="fixed bottom-12 right-4 sm:bottom-16 sm:right-20 opacity-25 pointer-events-none z-10 cloud-float-2">
-        <svg class="w-32 h-16 sm:w-44 sm:h-20" viewBox="0 0 120 60" fill="none">
+    <!-- Mây 2 -->
+    <div class="fixed bottom-8 right-2 sm:bottom-12 sm:right-16 opacity-25 pointer-events-none z-10 cloud-float-2">
+        <svg class="w-28 h-14 sm:w-36 sm:h-18" viewBox="0 0 120 60" fill="none">
             <path d="M25 50H95C106.046 50 115 41.0457 115 30C115 19.6 107.06 11.06 96.9 10.1C93.2 4.05 86.56 0 79 0C69.4 0 61.3 6.45 58.8 15.25C56.1 13.8 53 13 49.7 13C39.6 13 31.3 20.7 30.3 30.55C28.6 30.2 26.8 30 25 30C13.9543 30 5 38.9543 5 50H25Z" fill="#DDD6FE"/>
         </svg>
     </div>
 
-    <!-- Khu vực trung tâm chứa Hộp Quà & Thiệp -->
-    <main class="relative z-20 flex flex-col items-center justify-center w-full max-w-md mt-24 sm:mt-28">
-        
-        <!-- Vùng tương tác Hộp quà -->
-        <div id="giftBox" role="button" tabindex="0" aria-label="Mở hộp quà"
-             class="gift-container relative flex flex-col items-center justify-center cursor-pointer gift-wobble select-none">
-            
-            <!-- Tấm thiệp trồi lên từ bên trong hộp -->
-            <div id="greetingCard"
-                 class="greeting-card absolute w-[290px] sm:w-[340px] bg-gradient-to-br from-rose-50 via-amber-50 to-pink-100 rounded-3xl p-5 sm:p-6 shadow-[0_15px_45px_rgba(251,113,133,0.45)] border-2 border-pink-200/90 text-center">
-                
-                <!-- Icon trang trí đầu thiệp -->
-                <div class="flex items-center justify-center gap-2 mb-2">
-                    <span class="text-lg sm:text-xl">🌙</span>
-                    <span class="text-xs font-bold uppercase tracking-widest text-pink-400">Gửi đến dth</span>
-                    <span class="text-lg sm:text-xl">✨</span>
-                </div>
-
-                <!-- Lời chúc chính -->
-                <h1 class="font-script text-3xl sm:text-4xl font-bold leading-snug warm-text-glow my-2">
-                    Chúc dth ngủ ngoan ngoan hong mơ
-                </h1>
-
-                <!-- Dòng trang trí nhỏ ấm áp -->
-                <div class="flex items-center justify-center gap-1.5 mt-3 text-pink-400 text-sm">
-                    <span>🧸</span>
-                    <span class="w-12 h-[1.5px] bg-pink-200 rounded-full"></span>
-                    <span>💤</span>
-                    <span class="w-12 h-[1.5px] bg-pink-200 rounded-full"></span>
-                    <span>💖</span>
-                </div>
-            </div>
-
-            <!-- Hào quang ấm áp tỏa ra khi mở nắp -->
-            <div class="inner-glow absolute -top-10 w-56 h-56 rounded-full pointer-events-none z-10"></div>
-
-            <!-- Hộp quà vẽ bằng SVG sắc nét & dễ thương -->
-            <div class="relative w-44 h-44 sm:w-52 sm:h-52 flex items-center justify-center">
-                
-                <!-- Nắp hộp quà + Nơ (Tách riêng để tạo hiệu ứng bật mở) -->
-                <div class="gift-lid absolute top-1 left-0 w-full pointer-events-none">
-                    <svg viewBox="0 0 220 95" class="w-full h-auto drop-shadow-md">
-                        <!-- Nơ bên trái -->
-                        <path d="M110 42 C85 10, 48 18, 65 42 C74 52, 98 46, 110 42 Z" fill="#FDE047" stroke="#F59E0B" stroke-width="2.5"/>
-                        <!-- Nơ bên phải -->
-                        <path d="M110 42 C135 10, 172 18, 155 42 C146 52, 122 46, 110 42 Z" fill="#FDE047" stroke="#F59E0B" stroke-width="2.5"/>
-                        <!-- Nút thắt nơ ở giữa -->
-                        <rect x="100" y="31" width="20" height="18" rx="6" fill="#FACC15" stroke="#D97706" stroke-width="2.5"/>
-                        
-                        <!-- Thân nắp hộp -->
-                        <rect x="18" y="44" width="184" height="34" rx="10" fill="url(#lidGrad)"/>
-                        <!-- Ruy băng dọc trên nắp -->
-                        <rect x="96" y="44" width="28" height="34" fill="#FDE047"/>
-                        <!-- Viền sáng tạo khối 3D -->
-                        <rect x="22" y="47" width="176" height="6" rx="3" fill="rgba(255,255,255,0.3)"/>
-                        
-                        <defs>
-                            <linearGradient id="lidGrad" x1="18" y1="44" x2="202" y2="78" gradientUnits="userSpaceOnUse">
-                                <stop offset="0%" stop-color="#FB7185"/>
-                                <stop offset="100%" stop-color="#E11D48"/>
-                            </linearGradient>
-                        </defs>
-                    </svg>
-                </div>
-
-        <!-- Khu vực chuyển đổi giữa Dòng hướng dẫn & Nút Đóng hộp quà -->
-        <div class="relative mt-6 min-h-[48px] flex items-center justify-center w-full">
-            <!-- Dòng hướng dẫn mở quà -->
-            <p id="hintText" class="text-base sm:text-lg font-medium text-amber-100/95 tracking-wide hint-pulse text-center transition-all duration-300">
-                Chạm để mở hộp quà nhé ✨
+    <!-- Nội dung chính -->
+    <main class="relative z-20 flex flex-col items-center justify-center w-full max-w-lg my-auto">
+        <header class="text-center mb-3 sm:mb-4 px-2">
+            <p class="text-[10px] sm:text-xs uppercase tracking-[0.18em] text-pink-200/85 font-semibold mb-0.5">
+                9 hộp quà bí mật • Chỉ 1 lượt mở mỗi lần vào trang
             </p>
+            <h1 class="font-script text-2xl sm:text-4xl text-amber-100 drop-shadow">
+                dthh ✨
+            </h1>
+            <p id="statusSubtitle" class="text-[11px] sm:text-xs text-indigo-200/90 mt-1 transition-colors duration-300">
+                Có 9 lời chúc ngủ ngon bí mật — chỉ được mở 1 hộp duy nhất nhé!
+            </p>
+        </header>
 
-            <!-- Nút Đóng hộp quà (Thay thế vị trí dòng hướng dẫn khi mở) -->
-            <button id="closeBtn" type="button"
-                    class="absolute px-6 py-2.5 rounded-full bg-white/15 hover:bg-white/25 active:scale-95 backdrop-blur-md border border-white/25 text-pink-100 font-semibold text-sm sm:text-base shadow-lg transition-all duration-300 opacity-0 pointer-events-none translate-y-2">
-                Đóng hộp quà 🎁
-            </button>
+        <!-- Lưới đúng 9 hộp quà gọn gàng gần nhau trong 1 trang -->
+        <div id="giftGrid" class="grid grid-cols-3 gap-x-2 gap-y-2.5 sm:gap-x-3 sm:gap-y-3 w-full max-w-[330px] sm:max-w-[400px] place-items-center"></div>
+
+        <!-- Thanh trạng thái lượt mở quà -->
+        <div class="mt-4 sm:mt-5 px-3.5 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-center shadow-lg">
+            <p id="turnFooterText" class="text-[11px] sm:text-xs font-semibold text-amber-100/95">
+                🎁 Bạn đang có <span class="text-pink-300 font-bold">1 lượt mở quà</span> — hãy chọn hộp mình thích nhất!
+            </p>
         </div>
-
     </main>
 
     <script>
-        // 1. Tạo bầu trời đêm đầy sao lung linh ngẫu nhiên
+        // 9 lời chúc ngủ ngon khác nhau (tổng 9 hộp)
+        const GIFT_ITEMS = [
+            {
+                id: 'wish-1',
+                isEmpty: false,
+                text: 'Chúc dth ngủ ngoan ngoan hong mơ',
+                emoji: '🌙'
+            },
+            {
+                id: 'wish-2',
+                isEmpty: false,
+                text: 'Đặt lưng xuống là chìm vào giấc ngủ êm ái nha dth',
+                emoji: '🧸'
+            },
+            {
+                id: 'wish-3',
+                isEmpty: false,
+                text: 'Hôm nay dth vất vả rồi, giờ nghỉ ngơi thật trọn vẹn nhé',
+                emoji: '💤'
+            },
+            {
+                id: 'wish-4',
+                isEmpty: false,
+                text: 'Chúc dth có một đêm thật yên bình và ấm áp',
+                emoji: '✨'
+            },
+            {
+                id: 'wish-5',
+                isEmpty: false,
+                text: 'Gác lại hết âu lo, ngủ một giấc thật sâu tới sáng nha',
+                emoji: '☁️'
+            },
+            {
+                id: 'wish-6',
+                isEmpty: false,
+                text: 'Mền êm gối ấm, chúc dth ngủ ngon thiệt ngon',
+                emoji: '🛌'
+            },
+            {
+                id: 'wish-7',
+                isEmpty: false,
+                text: 'Tắt đèn thôi nào, chúc dth nạp đầy năng lượng cho ngày mai',
+                emoji: '🔋'
+            },
+            {
+                id: 'wish-8',
+                isEmpty: false,
+                text: 'Đêm nay sao sáng lắm, chúc dth ngủ thật say nhé',
+                emoji: '🌟'
+            },
+            {
+                id: 'wish-9',
+                isEmpty: false,
+                text: 'Chúc dth một giấc ngủ trọn vẹn, sáng thức dậy thật tươi',
+                emoji: '💖'
+            }
+        ];
+
+        // Bảng màu ruy băng & thân hộp
+        const BOX_THEMES = [
+            { lidFrom: '#FB7185', lidTo: '#E11D48', boxFrom: '#F43F5E', boxTo: '#BE123C', ribbon: '#FDE047', ribbonDark: '#FACC15' },
+            { lidFrom: '#F472B6', lidTo: '#DB2777', boxFrom: '#EC4899', boxTo: '#9D174D', ribbon: '#FEF08A', ribbonDark: '#FDE047' },
+            { lidFrom: '#A78BFA', lidTo: '#7C3AED', boxFrom: '#8B5CF6', boxTo: '#5B21B6', ribbon: '#FDE68A', ribbonDark: '#FCD34D' },
+            { lidFrom: '#38BDF8', lidTo: '#0284C7', boxFrom: '#0EA5E9', boxTo: '#0369A1', ribbon: '#FEF08A', ribbonDark: '#FDE047' },
+            { lidFrom: '#FBBF24', lidTo: '#D97706', boxFrom: '#F59E0B', boxTo: '#B45309', ribbon: '#FFFBEB', ribbonDark: '#FEF3C7' }
+        ];
+
+        // Xáo trộn mảng ngẫu nhiên bằng thuật toán Fisher–Yates
+        function shuffleArray(arr) {
+            const copy = [...arr];
+            for (let i = copy.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [copy[i], copy[j]] = [copy[j], copy[i]];
+            }
+            return copy;
+        }
+
+        // Tạo hiệu ứng bầu trời đầy sao lấp lánh
         function createStarfield() {
             const starfield = document.getElementById('starfield');
-            const starCount = window.innerWidth < 640 ? 55 : 95;
+            if (!starfield) return;
+            starfield.innerHTML = '';
+            const starCount = window.innerWidth < 640 ? 50 : 85;
 
             for (let i = 0; i < starCount; i++) {
                 const star = document.createElement('div');
                 star.className = 'star';
-                
-                const size = Math.random() * 2.6 + 1;
+                const size = Math.random() * 2.5 + 1;
                 star.style.width = `${size}px`;
                 star.style.height = `${size}px`;
                 star.style.left = `${Math.random() * 100}%`;
                 star.style.top = `${Math.random() * 100}%`;
                 star.style.setProperty('--duration', `${Math.random() * 3 + 2}s`);
                 star.style.setProperty('--delay', `${Math.random() * 4}s`);
-                
                 starfield.appendChild(star);
             }
         }
 
-        // 2. Hệ thống hiệu ứng Confetti, Trái tim & Ngôi sao bay tỏa
+        // Hệ thống hiệu ứng pháo giấy (Confetti)
         const canvas = document.getElementById('confetti-canvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
@@ -347,18 +414,18 @@
                 this.x = x;
                 this.y = y;
                 const angle = -Math.PI / 2 + (Math.random() - 0.5) * 1.6;
-                const speed = Math.random() * 9 + 5;
+                const speed = Math.random() * 7.5 + 4;
                 this.vx = Math.cos(angle) * speed;
-                this.vy = Math.sin(angle) * speed - 2;
+                this.vy = Math.sin(angle) * speed - 1.5;
                 this.gravity = 0.22;
                 this.drag = 0.985;
-                this.size = Math.random() * 8 + 6;
+                this.size = Math.random() * 7 + 5;
                 this.color = colors[Math.floor(Math.random() * colors.length)];
                 this.shape = shapes[Math.floor(Math.random() * shapes.length)];
                 this.rotation = Math.random() * Math.PI * 2;
                 this.rotationSpeed = (Math.random() - 0.5) * 0.15;
                 this.alpha = 1;
-                this.decay = Math.random() * 0.008 + 0.006;
+                this.decay = Math.random() * 0.01 + 0.007;
             }
 
             update() {
@@ -401,21 +468,13 @@
 
             drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius) {
                 let rot = (Math.PI / 2) * 3;
-                let x = cx;
-                let y = cy;
                 const step = Math.PI / spikes;
-
                 ctx.beginPath();
                 ctx.moveTo(cx, cy - outerRadius);
                 for (let i = 0; i < spikes; i++) {
-                    x = cx + Math.cos(rot) * outerRadius;
-                    y = cy + Math.sin(rot) * outerRadius;
-                    ctx.lineTo(x, y);
+                    ctx.lineTo(cx + Math.cos(rot) * outerRadius, cy + Math.sin(rot) * outerRadius);
                     rot += step;
-
-                    x = cx + Math.cos(rot) * innerRadius;
-                    y = cy + Math.sin(rot) * innerRadius;
-                    ctx.lineTo(x, y);
+                    ctx.lineTo(cx + Math.cos(rot) * innerRadius, cy + Math.sin(rot) * innerRadius);
                     rot += step;
                 }
                 ctx.lineTo(cx, cy - outerRadius);
@@ -424,8 +483,8 @@
             }
         }
 
-        function launchCelebration(originX, originY) {
-            for (let i = 0; i < 75; i++) {
+        function launchCelebration(originX, originY, count = 42) {
+            for (let i = 0; i < count; i++) {
                 particles.push(new Particle(originX, originY));
             }
             if (!animationFrameId) {
@@ -436,12 +495,10 @@
         function animateParticles() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             particles = particles.filter(p => p.alpha > 0);
-
             for (const p of particles) {
                 p.update();
                 p.draw(ctx);
             }
-
             if (particles.length > 0) {
                 animationFrameId = requestAnimationFrame(animateParticles);
             } else {
@@ -449,73 +506,257 @@
             }
         }
 
-        // 3. Xử lý tương tác Mở / Đóng hộp quà
-        const giftBox = document.getElementById('giftBox');
-        const hintText = document.getElementById('hintText');
-        const closeBtn = document.getElementById('closeBtn');
-        let isOpened = false;
+        // Hệ thống phát file nhạc MP3 (nhac-ru.mp3)
+        const lullabyAudio = document.getElementById('lullabyAudio');
+        let isMusicPlaying = false;
+        let userMutedMusic = false;
 
-        function openGift() {
-            if (isOpened) return;
-            isOpened = true;
+        function updateMusicUI() {
+            const btn = document.getElementById('musicToggleBtn');
+            const label = document.getElementById('musicStatusLabel');
+            if (!btn || !label) return;
 
-            // Dừng rung lắc và bật nắp + trồi thiệp
-            giftBox.classList.remove('gift-wobble');
-            giftBox.classList.add('opened');
-
-            // Ẩn dòng hướng dẫn
-            hintText.style.opacity = '0';
-            hintText.style.pointerEvents = 'none';
-
-            // Hiện nút Đóng hộp quà
-            setTimeout(() => {
-                closeBtn.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-2');
-                closeBtn.classList.add('opacity-100', 'translate-y-0');
-            }, 450);
-
-            // Bắn pháo giấy từ vị trí hộp quà
-            const rect = giftBox.getBoundingClientRect();
-            const originX = rect.left + rect.width / 2;
-            const originY = rect.top + rect.height * 0.45;
-            launchCelebration(originX, originY);
+            if (isMusicPlaying) {
+                btn.classList.add('music-playing', 'border-amber-300/50', 'bg-pink-500/25');
+                label.textContent = 'Nhạc ru: Đang phát';
+            } else {
+                btn.classList.remove('music-playing', 'border-amber-300/50', 'bg-pink-500/25');
+                label.textContent = 'Nhạc ru: Tắt';
+            }
         }
 
-        function closeGift() {
-            if (!isOpened) return;
-            isOpened = false;
-
-            // Thu thiệp và đóng nắp
-            giftBox.classList.remove('opened');
-            
-            // Ẩn nút Đóng
-            closeBtn.classList.add('opacity-0', 'pointer-events-none', 'translate-y-2');
-            closeBtn.classList.remove('opacity-100', 'translate-y-0');
-
-            // Khôi phục rung lắc và hướng dẫn sau khi nắp đóng xong
+        function hideMusicIntroModal() {
+            const modal = document.getElementById('musicIntroModal');
+            if (!modal) return;
+            modal.classList.add('opacity-0', 'pointer-events-none');
             setTimeout(() => {
-                if (!isOpened) {
-                    giftBox.classList.add('gift-wobble');
-                    hintText.style.opacity = '1';
-                    hintText.style.pointerEvents = 'auto';
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        async function startLullabyMusic() {
+            if (!lullabyAudio) return;
+            try {
+                lullabyAudio.volume = 0.75;
+                await lullabyAudio.play();
+                isMusicPlaying = true;
+                updateMusicUI();
+            } catch (err) {
+                console.warn('Không thể phát file nhac-ru.mp3 (hãy đảm bảo file nằm cùng thư mục với index.html):', err);
+                const label = document.getElementById('musicStatusLabel');
+                if (label) label.textContent = 'Thiếu file nhac-ru.mp3';
+            }
+        }
+
+        function stopLullabyMusic() {
+            if (!lullabyAudio) return;
+            lullabyAudio.pause();
+            isMusicPlaying = false;
+            updateMusicUI();
+        }
+
+        // Render lưới 3x3 (9 hộp quà) với vị trí ngẫu nhiên & giới hạn 1 lượt mở duy nhất
+        let chosenCardIndex = null;
+
+        function showLockedToast() {
+            // Không hiển thị bảng thông báo giữa màn hình
+        }
+
+        function lockOtherGifts(selectedIndex) {
+            const allCards = document.querySelectorAll('#giftGrid .gift-card');
+            allCards.forEach((otherCard, idx) => {
+                if (idx !== selectedIndex) {
+                    otherCard.classList.add('locked');
+                    const otherTrigger = otherCard.querySelector('.gift-trigger');
+                    const otherLabel = otherCard.querySelector('.box-label');
+                    if (otherTrigger) {
+                        otherTrigger.classList.remove('gift-wobble');
+                        otherTrigger.setAttribute('aria-disabled', 'true');
+                    }
+                    if (otherLabel) {
+                        otherLabel.textContent = `🔒 Hộp #${idx + 1}`;
+                    }
                 }
-            }, 650);
+            });
+
+            const statusSubtitle = document.getElementById('statusSubtitle');
+            const turnFooterText = document.getElementById('turnFooterText');
+            if (statusSubtitle) {
+                statusSubtitle.textContent = 'Lượt mở quà hôm nay đã dùng rồi — tải lại trang để thử vận may lần sau nhé! ✨';
+                statusSubtitle.classList.remove('text-indigo-200/90');
+                statusSubtitle.classList.add('text-amber-200', 'font-semibold');
+            }
+            if (turnFooterText) {
+                turnFooterText.innerHTML = '✨ Lượt mở quà hôm nay đã dùng rồi — tải lại trang để thử vận may lần sau nhé!';
+            }
         }
 
-        giftBox.addEventListener('click', openGift);
-        giftBox.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                openGift();
+        function renderShuffledGifts() {
+            const grid = document.getElementById('giftGrid');
+            grid.innerHTML = '';
+            chosenCardIndex = null;
+
+            const shuffledGifts = shuffleArray(GIFT_ITEMS);
+
+            shuffledGifts.forEach((item, index) => {
+                const theme = BOX_THEMES[index % BOX_THEMES.length];
+                const card = document.createElement('div');
+                card.className = 'gift-card relative flex flex-col items-center w-full max-w-[96px] sm:max-w-[116px] select-none';
+
+                const bubbleStyle = item.isEmpty
+                    ? 'from-slate-100 via-gray-100 to-slate-200 border-slate-300 text-slate-600'
+                    : 'from-rose-50 via-amber-50 to-pink-100 border-pink-200 warm-text-glow';
+
+                card.innerHTML = `
+                    <!-- Thẻ lời chúc / thông báo hộp trống nổi phía trên hộp -->
+                    <div class="message-bubble rounded-2xl bg-gradient-to-br ${bubbleStyle} border-2 p-2.5 sm:p-3 shadow-2xl text-center">
+                        <div class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider ${item.isEmpty ? 'text-slate-400' : 'text-pink-400'} mb-0.5">
+                            ${item.emoji} ${item.isEmpty ? 'Hộp trống' : 'Lời chúc'}
+                        </div>
+                        <p class="${item.isEmpty ? 'text-[11px] sm:text-xs font-semibold text-slate-600 leading-snug' : 'font-script text-lg sm:text-2xl font-bold leading-snug'}">
+                            ${item.text}
+                        </p>
+                        <button type="button" data-action="close"
+                                class="mt-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-semibold ${item.isEmpty ? 'bg-slate-200 hover:bg-slate-300 text-slate-700' : 'bg-pink-200/80 hover:bg-pink-300/80 text-rose-900'} transition">
+                            Đóng lại
+                        </button>
+                    </div>
+
+                    <!-- Hộp quà có thể bấm mở -->
+                    <div role="button" tabindex="0" data-action="toggle" aria-label="Mở hộp quà số ${index + 1}"
+                         style="--wobble-dur: ${(2.6 + (index % 4) * 0.35).toFixed(2)}s; --wobble-delay: ${(index * 0.2).toFixed(2)}s;"
+                         class="gift-trigger gift-wobble relative w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center cursor-pointer">
+                        
+                        ${item.isEmpty ? '' : '<div class="inner-glow absolute -top-3 w-24 h-24 sm:w-28 sm:h-28 rounded-full pointer-events-none z-0"></div>'}
+
+                        <!-- Huy hiệu ổ khóa khi hộp bị khóa -->
+                        <div class="lock-badge absolute z-30 flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-900/85 border border-white/25 text-amber-200 text-xs sm:text-sm shadow-lg pointer-events-none">
+                            🔒
+                        </div>
+
+                        <!-- Nắp hộp -->
+                        <div class="gift-lid absolute top-0 left-0 w-full pointer-events-none">
+                            <svg viewBox="0 0 220 95" class="w-full h-auto drop-shadow-md">
+                                <path d="M110 42 C85 10, 48 18, 65 42 C74 52, 98 46, 110 42 Z" fill="${theme.ribbon}" stroke="#D97706" stroke-width="2.5"/>
+                                <path d="M110 42 C135 10, 172 18, 155 42 C146 52, 122 46, 110 42 Z" fill="${theme.ribbon}" stroke="#D97706" stroke-width="2.5"/>
+                                <rect x="100" y="31" width="20" height="18" rx="6" fill="${theme.ribbonDark}" stroke="#B45309" stroke-width="2.5"/>
+                                <rect x="18" y="44" width="184" height="34" rx="10" fill="url(#lid-${item.id}-${index})"/>
+                                <rect x="96" y="44" width="28" height="34" fill="${theme.ribbon}"/>
+                                <rect x="22" y="47" width="176" height="6" rx="3" fill="rgba(255,255,255,0.28)"/>
+                                <defs>
+                                    <linearGradient id="lid-${item.id}-${index}" x1="18" y1="44" x2="202" y2="78" gradientUnits="userSpaceOnUse">
+                                        <stop offset="0%" stop-color="${theme.lidFrom}"/>
+                                        <stop offset="100%" stop-color="${theme.lidTo}"/>
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                        </div>
+
+                        <!-- Thân hộp -->
+                        <svg viewBox="0 0 220 140" class="w-full h-auto mt-5 sm:mt-6 drop-shadow-lg z-10">
+                            <ellipse cx="110" cy="131" rx="76" ry="7" fill="rgba(9, 13, 22, 0.45)"/>
+                            <rect x="28" y="22" width="164" height="104" rx="12" fill="url(#box-${item.id}-${index})"/>
+                            <rect x="28" y="22" width="164" height="12" fill="rgba(0, 0, 0, 0.22)"/>
+                            <rect x="34" y="28" width="10" height="90" rx="5" fill="rgba(255, 255, 255, 0.15)"/>
+                            <rect x="96" y="22" width="28" height="104" fill="${theme.ribbon}"/>
+                            <rect x="96" y="22" width="28" height="10" fill="rgba(180, 83, 9, 0.22)"/>
+                            <rect x="28" y="62" width="164" height="22" fill="${theme.ribbonDark}"/>
+                            <rect x="96" y="62" width="28" height="22" fill="${theme.ribbon}"/>
+                            <defs>
+                                <linearGradient id="box-${item.id}-${index}" x1="28" y1="22" x2="192" y2="126" gradientUnits="userSpaceOnUse">
+                                    <stop offset="0%" stop-color="${theme.boxFrom}"/>
+                                    <stop offset="100%" stop-color="${theme.boxTo}"/>
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                    </div>
+
+                    <span class="box-label mt-0.5 text-[10px] sm:text-[11px] font-semibold text-amber-100/85">Hộp #${index + 1}</span>
+                `;
+
+                const trigger = card.querySelector('.gift-trigger');
+                const closeMiniBtn = card.querySelector('[data-action="close"]');
+
+                function setOpenedState(open) {
+                    if (open) {
+                        const isFirstTimeOpening = chosenCardIndex === null;
+                        chosenCardIndex = index;
+                        card.classList.add('opened');
+                        trigger.classList.remove('gift-wobble');
+
+                        if (isFirstTimeOpening) {
+                            lockOtherGifts(index);
+                            if (!userMutedMusic) {
+                                startLullabyMusic();
+                            }
+                            if (!item.isEmpty) {
+                                const rect = trigger.getBoundingClientRect();
+                                launchCelebration(rect.left + rect.width / 2, rect.top + rect.height * 0.4, 42);
+                            }
+                        }
+                    } else {
+                        card.classList.remove('opened');
+                    }
+                }
+
+                function handleBoxInteract() {
+                    if (chosenCardIndex !== null && chosenCardIndex !== index) {
+                        showLockedToast();
+                        return;
+                    }
+                    const willOpen = !card.classList.contains('opened');
+                    setOpenedState(willOpen);
+                }
+
+                trigger.addEventListener('click', handleBoxInteract);
+
+                trigger.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleBoxInteract();
+                    }
+                });
+
+                closeMiniBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    setOpenedState(false);
+                });
+
+                grid.appendChild(card);
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            createStarfield();
+            renderShuffledGifts();
+
+            const musicToggleBtn = document.getElementById('musicToggleBtn');
+            if (musicToggleBtn) {
+                musicToggleBtn.addEventListener('click', () => {
+                    if (isMusicPlaying) {
+                        userMutedMusic = true;
+                        stopLullabyMusic();
+                    } else {
+                        userMutedMusic = false;
+                        startLullabyMusic();
+                    }
+                });
+            }
+
+            const closeMusicModalBtn = document.getElementById('closeMusicModalBtn');
+            if (closeMusicModalBtn) {
+                closeMusicModalBtn.addEventListener('click', hideMusicIntroModal);
+            }
+
+            const enableMusicFromModalBtn = document.getElementById('enableMusicFromModalBtn');
+            if (enableMusicFromModalBtn) {
+                enableMusicFromModalBtn.addEventListener('click', async () => {
+                    userMutedMusic = false;
+                    await startLullabyMusic();
+                    hideMusicIntroModal();
+                });
             }
         });
-
-        closeBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            closeGift();
-        });
-
-        // Khởi tạo bầu trời sao khi tải trang
-        window.addEventListener('DOMContentLoaded', createStarfield);
     </script>
 </body>
 </html>
