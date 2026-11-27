@@ -201,11 +201,21 @@
             display: inline-block;
             animation: musicBeat 1.2s ease-in-out infinite;
         }
+
+        /* Hiệu ứng xuất hiện thẻ kết quả vòng quay */
+        @keyframes popReveal {
+            0% { opacity: 0; transform: scale(0.75) translateY(12px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .pop-reveal {
+            animation: popReveal 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
     </style>
 </head>
 <body class="relative flex flex-col items-center justify-center min-h-screen px-4 py-6">
     <!-- Thẻ phát nhạc ru MP3 đặt cùng thư mục với index.html -->
-    <audio id="lullabyAudio" src="nhac-ru.mp3" loop preload="auto"></audio>
+    <audio id="lullabyAudio" src="nhac-ru.mp3" preload="auto"></audio>
 
     <!-- Lớp nền sao lấp lánh -->
     <div id="starfield" class="fixed inset-0 pointer-events-none z-0"></div>
@@ -214,11 +224,15 @@
     <canvas id="confetti-canvas"></canvas>
 
     <!-- Nút Bật/Tắt nhạc ru ở góc trên trái -->
-    <div class="fixed top-4 left-4 sm:top-6 sm:left-6 z-40 flex flex-col items-start">
+    <div class="fixed top-4 left-4 sm:top-6 sm:left-6 z-40 flex items-center gap-1.5">
         <button id="musicToggleBtn" type="button" aria-label="Bật hoặc tắt nhạc chúc bé ngủ ngon"
                 class="flex items-center gap-2 px-3.5 py-2 rounded-full bg-white/15 hover:bg-white/25 active:scale-95 backdrop-blur-md border border-white/25 text-amber-100 text-xs sm:text-sm font-semibold shadow-lg transition">
             <span class="music-icon text-sm sm:text-base">🎵</span>
             <span id="musicStatusLabel">Nhạc ru: Tắt</span>
+        </button>
+        <button id="nextTrackBtn" type="button" title="Đổi bài nhạc ngẫu nhiên khác" aria-label="Đổi bài nhạc ngẫu nhiên khác"
+                class="px-2.5 py-2 rounded-full bg-white/15 hover:bg-white/25 active:scale-95 backdrop-blur-md border border-white/25 text-amber-100 text-xs sm:text-sm font-semibold shadow-lg transition">
+            🔀
         </button>
     </div>
 
@@ -231,7 +245,7 @@
                 Nhớ bật nhạc trước nha
             </h2>
             <p class="text-xs sm:text-sm text-indigo-100/90 leading-relaxed mb-4">
-                Bật nhạc ru ở góc trên bên trái để nghe giai điệu dịu êm khi mở quà nhé dth ✨
+                Bật nhạc ru để nghe giai điệu dịu êm trước khi nhập tên và mở quà nhé ✨
             </p>
             <div class="flex items-center justify-center gap-2.5">
                 <button id="enableMusicFromModalBtn" type="button"
@@ -240,7 +254,58 @@
                 </button>
                 <button id="closeMusicModalBtn" type="button"
                         class="px-4 py-2 rounded-full bg-white/15 hover:bg-white/25 active:scale-95 border border-white/25 text-amber-100 text-xs sm:text-sm font-semibold transition">
-                    Đóng
+                    Bỏ qua
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bảng bắt buộc nhập tên sau khi qua bước bật nhạc -->
+    <div id="nameInputModal"
+         class="hidden fixed inset-0 z-50 flex items-center justify-center px-4 bg-slate-950/65 backdrop-blur-sm opacity-0 transition-opacity duration-300">
+        <form id="nameInputForm"
+              class="w-full max-w-xs sm:max-w-sm rounded-3xl bg-gradient-to-br from-[#1d2240] to-[#2c254e] border border-pink-300/35 p-5 sm:p-6 text-center shadow-2xl">
+            <div class="text-3xl mb-2">💌✨</div>
+            <h2 class="font-script text-2xl sm:text-3xl text-amber-100 mb-1.5">
+                Nhập tên của bạn nha
+            </h2>
+            <p class="text-xs sm:text-sm text-indigo-100/90 leading-relaxed mb-4">
+                Để hộp quà gửi lời chúc ngủ ngon dành riêng cho bạn nè 🌙
+            </p>
+            <input id="recipientNameInput" type="text" maxlength="25" required autocomplete="off"
+                   placeholder="Ví dụ: dth, bé, Minh Anh..."
+                   class="w-full px-4 py-2.5 rounded-2xl bg-white/15 border border-pink-200/40 text-center text-white placeholder-indigo-200/60 text-sm sm:text-base font-semibold focus:outline-none focus:border-pink-300 focus:bg-white/20 transition" />
+            <p id="nameErrorText" class="hidden text-[11px] text-rose-300 font-semibold mt-1.5">
+                Bạn nhập tên trước khi tiếp tục nhé!
+            </p>
+            <button type="submit"
+                    class="mt-4 w-full py-2.5 rounded-full bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-400 hover:to-rose-400 active:scale-95 text-white text-xs sm:text-sm font-bold shadow-lg transition">
+                Tiếp tục ✨
+            </button>
+        </form>
+    </div>
+
+    <!-- Bảng chọn 1 trong 2 chế độ sau khi nhập xong tên -->
+    <div id="modeSelectModal"
+         class="hidden fixed inset-0 z-50 flex items-center justify-center px-4 bg-slate-950/65 backdrop-blur-sm opacity-0 transition-opacity duration-300">
+        <div class="w-full max-w-xs sm:max-w-md rounded-3xl bg-gradient-to-br from-[#1d2240] to-[#2c254e] border border-pink-300/35 p-5 sm:p-6 text-center shadow-2xl">
+            <div class="text-3xl mb-2">✨🎡🎁</div>
+            <h2 class="font-script text-2xl sm:text-3xl text-amber-100 mb-1">
+                Chọn chế độ nhận lời chúc
+            </h2>
+            <p id="modeGreetingSubtitle" class="text-xs sm:text-sm text-indigo-100/90 leading-relaxed mb-4">
+                Chào bạn, hãy chọn cách nhận lời chúc ngủ ngon đêm nay nhé!
+            </p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <button id="chooseWheelModeBtn" type="button"
+                        class="flex flex-col items-center justify-center p-4 rounded-2xl bg-gradient-to-br from-pink-500/30 to-purple-500/30 hover:from-pink-500/45 hover:to-purple-500/45 active:scale-95 border border-pink-300/40 text-white shadow-lg transition">
+                    <span class="text-2xl sm:text-3xl mb-1.5">🎡</span>
+                    <span class="font-bold text-sm sm:text-base text-amber-100">Quay vòng quay</span>
+                </button>
+                <button id="chooseBoxModeBtn" type="button"
+                        class="flex flex-col items-center justify-center p-4 rounded-2xl bg-gradient-to-br from-amber-500/25 to-rose-500/30 hover:from-amber-500/40 hover:to-rose-500/45 active:scale-95 border border-amber-300/40 text-white shadow-lg transition">
+                    <span class="text-2xl sm:text-3xl mb-1.5">🎁</span>
+                    <span class="font-bold text-sm sm:text-base text-amber-100">Mở hộp quà</span>
                 </button>
             </div>
         </div>
@@ -272,86 +337,180 @@
     <!-- Nội dung chính -->
     <main class="relative z-20 flex flex-col items-center justify-center w-full max-w-lg my-auto">
         <header class="text-center mb-3 sm:mb-4 px-2">
-            <p class="text-[10px] sm:text-xs uppercase tracking-[0.18em] text-pink-200/85 font-semibold mb-0.5">
-                9 hộp quà bí mật • Chỉ 1 lượt mở mỗi lần vào trang
-            </p>
-            <h1 class="font-script text-2xl sm:text-4xl text-amber-100 drop-shadow">
-                dthh ✨
+            <div class="flex items-center justify-center gap-2 mb-1">
+                <p id="modeBadgeText" class="text-[10px] sm:text-xs uppercase tracking-[0.18em] text-pink-200/85 font-semibold">
+                    9 hộp quà bí mật • Chỉ 1 lượt mở
+                </p>
+                <button id="switchModeBtn" type="button"
+                        class="hidden px-2.5 py-0.5 rounded-full bg-white/15 hover:bg-white/25 border border-white/25 text-[10px] sm:text-[11px] font-semibold text-amber-100 transition">
+                    Đổi chế độ ⇄
+                </button>
+            </div>
+            <h1 id="mainHeading" class="font-script text-2xl sm:text-4xl text-amber-100 drop-shadow">
+                Chúc ngủ ngon ✨
             </h1>
             <p id="statusSubtitle" class="text-[11px] sm:text-xs text-indigo-200/90 mt-1 transition-colors duration-300">
-                Có 9 lời chúc ngủ ngon bí mật — chỉ được mở 1 hộp duy nhất nhé!
+                Chọn 1 trong 2 chế độ để nhận lời chúc ngủ ngon bí mật nhé!
             </p>
         </header>
 
-        <!-- Lưới đúng 9 hộp quà gọn gàng gần nhau trong 1 trang -->
-        <div id="giftGrid" class="grid grid-cols-3 gap-x-2 gap-y-2.5 sm:gap-x-3 sm:gap-y-3 w-full max-w-[330px] sm:max-w-[400px] place-items-center"></div>
+        <!-- CHẾ ĐỘ 1: Vòng quay 20 ô lời chúc -->
+        <section id="wheelSection" class="hidden flex-col items-center justify-center w-full">
+            <div class="relative flex items-center justify-center my-1">
+                <!-- Kim chỉ kết quả phía trên đỉnh vòng quay -->
+                <div class="absolute -top-3.5 z-30 pointer-events-none drop-shadow-[0_4px_8px_rgba(0,0,0,0.6)]">
+                    <svg width="34" height="38" viewBox="0 0 34 38" fill="none">
+                        <path d="M17 36L3 8C1.5 5 3.7 1.5 7 1.5H27C30.3 1.5 32.5 5 31 8L17 36Z" fill="#FDE047" stroke="#9D174D" stroke-width="2.5"/>
+                        <circle cx="17" cy="10" r="4" fill="#F43F5E"/>
+                    </svg>
+                </div>
 
-        <!-- Thanh trạng thái lượt mở quà -->
+                <!-- Khung viền phát sáng xung quanh vòng quay -->
+                <div class="relative p-2 rounded-full bg-gradient-to-tr from-pink-500/40 via-amber-300/40 to-indigo-400/40 shadow-[0_0_35px_rgba(244,114,182,0.35)] border border-white/25">
+                    <canvas id="wheelCanvas" class="rounded-full block cursor-pointer"></canvas>
+
+                    <!-- Nút QUAY ở tâm vòng quay -->
+                    <button id="spinWheelBtn" type="button"
+                            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-rose-500 via-pink-600 to-purple-700 hover:from-rose-400 hover:to-pink-500 active:scale-95 border-4 border-amber-200 text-white font-bold text-xs sm:text-sm tracking-wider shadow-[0_0_20px_rgba(0,0,0,0.6)] flex flex-col items-center justify-center transition z-20">
+                        <span>QUAY</span>
+                        <span class="text-[9px] font-normal text-amber-100/90">1 lượt</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Thẻ hiển thị lời chúc sau khi vòng quay dừng -->
+            <div id="wheelResultCard" class="hidden mt-3 w-full max-w-xs sm:max-w-sm rounded-2xl bg-gradient-to-br from-rose-50 via-amber-50 to-pink-100 border-2 border-pink-200 p-3.5 sm:p-4 text-center shadow-2xl">
+                <div id="wheelResultBadge" class="text-[11px] font-bold uppercase tracking-wider text-pink-500 mb-1">
+                    🌙 Lời chúc dành cho bạn
+                </div>
+                <p id="wheelResultText" class="font-script text-xl sm:text-2xl font-bold leading-snug warm-text-glow"></p>
+            </div>
+        </section>
+
+        <!-- CHẾ ĐỘ 2: Lưới đúng 9 hộp quà gọn gàng gần nhau trong 1 trang -->
+        <section id="boxSection" class="w-full flex flex-col items-center">
+            <div id="giftGrid" class="grid grid-cols-3 gap-x-2 gap-y-2.5 sm:gap-x-3 sm:gap-y-3 w-full max-w-[330px] sm:max-w-[400px] place-items-center"></div>
+        </section>
+
+        <!-- Thanh trạng thái lượt chơi -->
         <div class="mt-4 sm:mt-5 px-3.5 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-center shadow-lg">
             <p id="turnFooterText" class="text-[11px] sm:text-xs font-semibold text-amber-100/95">
-                🎁 Bạn đang có <span class="text-pink-300 font-bold">1 lượt mở quà</span> — hãy chọn hộp mình thích nhất!
+                🎁 Bạn đang có <span class="text-pink-300 font-bold">1 lượt nhận lời chúc</span> — hãy chọn chế độ nhé!
             </p>
         </div>
     </main>
 
     <script>
-        // 9 lời chúc ngủ ngon khác nhau (tổng 9 hộp)
-        const GIFT_ITEMS = [
-            {
-                id: 'wish-1',
-                isEmpty: false,
-                text: 'Chúc dth ngủ ngoan ngoan hong mơ',
-                emoji: '🌙'
-            },
-            {
-                id: 'wish-2',
-                isEmpty: false,
-                text: 'Đặt lưng xuống là chìm vào giấc ngủ êm ái nha dth',
-                emoji: '🧸'
-            },
-            {
-                id: 'wish-3',
-                isEmpty: false,
-                text: 'Hôm nay dth vất vả rồi, giờ nghỉ ngơi thật trọn vẹn nhé',
-                emoji: '💤'
-            },
-            {
-                id: 'wish-4',
-                isEmpty: false,
-                text: 'Chúc dth có một đêm thật yên bình và ấm áp',
-                emoji: '✨'
-            },
-            {
-                id: 'wish-5',
-                isEmpty: false,
-                text: 'Gác lại hết âu lo, ngủ một giấc thật sâu tới sáng nha',
-                emoji: '☁️'
-            },
-            {
-                id: 'wish-6',
-                isEmpty: false,
-                text: 'Mền êm gối ấm, chúc dth ngủ ngon thiệt ngon',
-                emoji: '🛌'
-            },
-            {
-                id: 'wish-7',
-                isEmpty: false,
-                text: 'Tắt đèn thôi nào, chúc dth nạp đầy năng lượng cho ngày mai',
-                emoji: '🔋'
-            },
-            {
-                id: 'wish-8',
-                isEmpty: false,
-                text: 'Đêm nay sao sáng lắm, chúc dth ngủ thật say nhé',
-                emoji: '🌟'
-            },
-            {
-                id: 'wish-9',
-                isEmpty: false,
-                text: 'Chúc dth một giấc ngủ trọn vẹn, sáng thức dậy thật tươi',
-                emoji: '💖'
-            }
+        let recipientName = 'bạn';
+        let currentMode = null; // 'wheel' | 'box'
+
+        // Kho 100 lời chúc ngủ ngon ngọt ngào, ấm áp (dùng {name} để tự động chèn tên)
+        const WISH_POOL = [
+            { text: 'Chúc {name} ngủ ngoan ngoan hong mơ', emoji: '🌙' },
+            { text: 'Đặt lưng xuống là chìm vào giấc ngủ êm ái nha {name}', emoji: '🧸' },
+            { text: 'Hôm nay {name} vất vả rồi, giờ nghỉ ngơi thật trọn vẹn nhé', emoji: '💤' },
+            { text: 'Chúc {name} có một đêm thật yên bình và ấm áp', emoji: '✨' },
+            { text: 'Gác lại hết âu lo, {name} ngủ một giấc thật sâu tới sáng nha', emoji: '☁️' },
+            { text: 'Mền êm gối ấm, chúc {name} ngủ ngon thiệt ngon', emoji: '🛌' },
+            { text: 'Tắt đèn thôi nào, chúc {name} nạp đầy năng lượng cho ngày mai', emoji: '🔋' },
+            { text: 'Đêm nay sao sáng lắm, chúc {name} ngủ thật say nhé', emoji: '🌟' },
+            { text: 'Chúc {name} một giấc ngủ trọn vẹn, sáng thức dậy thật tươi', emoji: '💖' },
+            { text: 'Màn đêm buông xuống rồi, chúc {name} an giấc nồng say nhé', emoji: '🌌' },
+            { text: 'Gửi ngàn ngôi sao nhỏ tới canh giấc ngủ cho {name} đêm nay', emoji: '🌠' },
+            { text: 'Chúc {name} nhắm mắt lại là thấy toàn điều dịu dàng nhất', emoji: '🌸' },
+            { text: 'Đừng thức khuya nữa nha {name}, ngủ sớm cho xinh tươi nè', emoji: '🌷' },
+            { text: 'Chúc {name} đêm nay ngủ không mộng mị, sáng dậy tràn đầy niềm vui', emoji: '☀️' },
+            { text: 'Gió đêm mát lành, chúc {name} cuộn chăn ngủ thật ấm áp', emoji: '🧣' },
+            { text: 'Mọi mệt mỏi hôm nay cứ để đêm nay xoa dịu giúp {name} nhé', emoji: '🍃' },
+            { text: 'Chúc {name} có một giấc ngủ ngọt như kẹo bông gòn', emoji: '🍭' },
+            { text: 'Ánh trăng dịu dàng đang ru {name} vào giấc mơ đẹp đó', emoji: '🌛' },
+            { text: 'Ngủ ngon nha {name}, ngày mai nhất định sẽ là một ngày tuyệt vời', emoji: '🌈' },
+            { text: 'Chúc {name} thả lỏng đôi vai, thở nhẹ nhàng và ngủ thật sâu', emoji: '🕊️' },
+            { text: 'Đêm khuya thanh vắng, chúc tâm hồn {name} luôn bình yên', emoji: '🕯️' },
+            { text: 'Chúc {name} ngủ một mạch tới sáng không bị giật mình nhé', emoji: '😴' },
+            { text: 'Gửi {name} một cái ôm thật ấm áp trước giờ đi ngủ nè', emoji: '🤗' },
+            { text: 'Chúc {name} đêm nay mơ thấy toàn những nơi mình thích đến', emoji: '✈️' },
+            { text: 'Hết giờ chạy deadline rồi {name} ơi, lên giường ngủ ngoan thôi', emoji: '⏰' },
+            { text: 'Chúc {name} ngủ say như gấu ngủ đông nhưng sáng dậy đúng giờ nha', emoji: '🐻' },
+            { text: 'Bầu trời đêm nay thật đẹp, chúc {name} ngủ ngon nhé', emoji: '🪐' },
+            { text: 'Chúc {name} tạm biệt mọi muộn phiền để đón giấc ngủ an lành', emoji: '🌊' },
+            { text: 'Đêm nay chúc {name} ngủ thật ngon, mai mỉm cười thật rạng rỡ', emoji: '😊' },
+            { text: 'Nhắm mắt lại và đếm cừu cùng ánh sao nhé {name}, ngủ ngon!', emoji: '🐑' },
+            { text: 'Chúc {name} một đêm dịu êm, không suy tư, không trằn trọc', emoji: '🪷' },
+            { text: 'Gối mềm đã sẵn sàng, chúc {name} ngủ một giấc thật đã', emoji: '🛏️' },
+            { text: 'Chúc {name} luôn được che chở bởi những giấc mơ ngọt ngào nhất', emoji: '🎀' },
+            { text: 'Đêm nay trăng tròn tỏa sáng, chúc {name} an nhiên chìm vào giấc ngủ', emoji: '🌕' },
+            { text: 'Cảm ơn {name} vì hôm nay đã cố gắng, giờ ngủ thật ngon nha', emoji: '🏅' },
+            { text: 'Chúc {name} ngủ ngon, sáng mai thức dậy thấy lòng nhẹ tênh', emoji: '🎈' },
+            { text: 'Đừng lướt điện thoại nữa nha {name}, nhắm mắt ngủ ngoan nào', emoji: '📵' },
+            { text: 'Chúc {name} một đêm bình yên như mặt hồ tĩnh lặng', emoji: '🏞️' },
+            { text: 'Gửi tới {name} lời chúc ngủ ngon ấm áp nhất vũ trụ này', emoji: '🚀' },
+            { text: 'Chúc {name} ngủ thật say để mai tiếp tục tỏa sáng rực rỡ nhé', emoji: '💎' },
+            { text: 'Đêm xuống rồi, chúc {name} cuộn tròn trong chăn ấm và mỉm cười', emoji: '🥐' },
+            { text: 'Chúc {name} có những giây phút nghỉ ngơi thật sự chất lượng đêm nay', emoji: '🍵' },
+            { text: 'Mọi chuyện ngày mai tính tiếp, giờ thì {name} ngủ ngon đã nhé', emoji: '📝' },
+            { text: 'Chúc {name} ngủ êm đềm như tiếng nhạc ru dịu dàng đêm khuya', emoji: '🎶' },
+            { text: 'Chúc {name} đêm nay không lạnh, không muộn phiền, chỉ có bình yên', emoji: '🔥' },
+            { text: 'Ngủ ngoan nha {name}, chúc bạn luôn vui vẻ và hạnh phúc', emoji: '🍀' },
+            { text: 'Chúc {name} chìm vào giấc ngủ nhanh như một cơn gió nhẹ', emoji: '🍃' },
+            { text: 'Đêm nay sao trời lấp lánh chúc {name} ngủ thật ngon giấc', emoji: '✨' },
+            { text: 'Chúc {name} sáng mai thức dậy với thật nhiều năng lượng tích cực', emoji: '⚡' },
+            { text: 'Đắp chăn kín cổ kẻo lạnh nha {name}, chúc ngủ ngon!', emoji: '🧣' },
+            { text: 'Chúc {name} một đêm an lành, mọi điều tốt đẹp đang chờ phía trước', emoji: '🌻' },
+            { text: 'Giờ là lúc dành trọn thời gian cho bản thân nghỉ ngơi nhé {name}', emoji: '🧘' },
+            { text: 'Chúc {name} ngủ ngon, mơ đẹp và luôn giữ nụ cười trên môi', emoji: '😄' },
+            { text: 'Màn đêm dịu dàng ôm lấy {name}, chúc bạn ngủ thật say', emoji: '🌙' },
+            { text: 'Chúc {name} đêm nay ngủ ngon không mộng mị, tinh thần sảng khoái', emoji: '🌿' },
+            { text: 'Gửi {name} một chút bình yên của đêm khuya để dễ ngủ hơn nè', emoji: '🌌' },
+            { text: 'Chúc {name} giấc ngủ sâu tựa đại dương êm ả đêm trăng', emoji: '🐬' },
+            { text: 'Hôm nay thế là đủ rồi {name} ơi, ngủ một giấc thật ngon nhé', emoji: '🌙' },
+            { text: 'Chúc {name} luôn bình an trong từng hơi thở và từng giấc ngủ', emoji: '🤍' },
+            { text: 'Ngủ sớm giữ gìn sức khỏe nha {name}, chúc bạn ngủ ngon!', emoji: '🍎' },
+            { text: 'Chúc {name} đêm nay được dạo chơi trong khu vườn cổ tích dịu êm', emoji: '🧚' },
+            { text: 'Tắt hết ánh đèn chói chang, chúc {name} an giấc trong bình yên', emoji: '🌃' },
+            { text: 'Chúc {name} ngủ ngon như chú mèo con cuộn tròn bên lò sưởi', emoji: '🐱' },
+            { text: 'Ngày mai mặt trời sẽ lại mọc, còn đêm nay {name} cứ ngủ thật ngon', emoji: '🌅' },
+            { text: 'Chúc {name} có một giấc ngủ thật sâu để xua tan hết mệt nhoài', emoji: '💆' },
+            { text: 'Đêm nay chúc {name} lòng an yên, mắt khép nhẹ và ngủ say', emoji: '🌸' },
+            { text: 'Gửi ngàn lời chúc tốt đẹp nhất tới giấc ngủ đêm nay của {name}', emoji: '💌' },
+            { text: 'Chúc {name} ngủ ngon, sáng dậy đón nhận thật nhiều may mắn nhé', emoji: '🧲' },
+            { text: 'Bầu trời đêm đã lên đèn, chúc {name} vào giấc thật êm ái', emoji: '🏮' },
+            { text: 'Chúc {name} không còn vướng bận điều gì, ngủ thật ngon nha', emoji: '🎈' },
+            { text: 'Một ngày dài khép lại rồi, chúc {name} ngủ thật ngon giấc nhé', emoji: '📖' },
+            { text: 'Chúc {name} đêm nay ngủ say sưa, sáng dậy tràn ngập tiếng cười', emoji: '🎵' },
+            { text: 'Gió hát ru ngoài hiên, chúc {name} ngủ một giấc thật bình yên', emoji: '🍃' },
+            { text: 'Chúc {name} luôn mạnh khỏe, vui tươi và đêm nay ngủ thật ngon', emoji: '💪' },
+            { text: 'Đặt điện thoại sang một bên và nhắm mắt lại nào {name}, ngủ ngon!', emoji: '🛌' },
+            { text: 'Chúc {name} có một đêm dịu dàng như những đám mây bồng bềnh', emoji: '☁️' },
+            { text: 'Chúc {name} ngủ ngon, mọi ước muốn tốt đẹp sẽ sớm thành hiện thực', emoji: '🌠' },
+            { text: 'Đêm nay thật yên tĩnh, rất hợp để {name} ngủ một giấc thật dài', emoji: '🤫' },
+            { text: 'Chúc {name} ngủ thật ngon, tâm trí thư thái và nhẹ nhõm', emoji: '🕊️' },
+            { text: 'Gửi tới {name} ánh trăng vàng dịu ngọt để ru giấc ngủ đêm nay', emoji: '🌙' },
+            { text: 'Chúc {name} ngủ ngoan, sáng mai thức dậy thấy yêu đời hơn nữa', emoji: '🌺' },
+            { text: 'Mọi áp lực xin gửi lại ngoài cửa phòng, chúc {name} ngủ ngon', emoji: '🚪' },
+            { text: 'Chúc {name} đêm nay ngủ ngon lành, không còn chút mệt mỏi nào', emoji: '✨' },
+            { text: 'Chúc {name} luôn được bao bọc bởi sự ấm áp và bình yên mỗi đêm', emoji: '🏡' },
+            { text: 'Ngủ ngon nha {name}, chúc bạn luôn vững vàng và rạng rỡ', emoji: '🌟' },
+            { text: 'Chúc {name} một đêm an giấc, sáng mai đón bình minh rực rỡ', emoji: '🌤️' },
+            { text: 'Thả lỏng cơ thể, hít thở thật sâu và ngủ ngon nhé {name}', emoji: '🌬️' },
+            { text: 'Chúc {name} đêm nay ngủ thật sâu, nạp đầy pin 100% nhé', emoji: '💯' },
+            { text: 'Đêm khuya rồi, chúc {name} bình yên trong từng khoảnh khắc nghỉ ngơi', emoji: '🌙' },
+            { text: 'Chúc {name} ngủ ngon như em bé, sáng dậy tươi tắn như hoa', emoji: '🌼' },
+            { text: 'Gửi {name} một bầu trời sao lấp lánh cho giấc ngủ thêm phần kỳ diệu', emoji: '🌌' },
+            { text: 'Chúc {name} đêm nay ngủ say giấc, mọi chuyện tốt lành sẽ tự tìm đến', emoji: '🍀' },
+            { text: 'Hết giờ nghĩ ngợi rồi {name} ơi, chúc bạn ngủ thật ngon nhé', emoji: '💤' },
+            { text: 'Chúc {name} có một đêm thư giãn tuyệt đối và giấc ngủ thật sâu', emoji: '🛁' },
+            { text: 'Ngủ ngon nhé {name}, mong mọi điều dịu dàng nhất luôn ở bên bạn', emoji: '💝' },
+            { text: 'Chúc {name} đêm nay ngủ ngon, sáng mai bước ra cửa là gặp niềm vui', emoji: '🎁' },
+            { text: 'Ánh sao đêm nay sáng nhất là để chúc {name} ngủ ngon đó', emoji: '⭐' },
+            { text: 'Chúc {name} khép mi nhẹ nhàng, an nhiên tận hưởng giấc ngủ đêm nay', emoji: '🌙' },
+            { text: 'Cả thế giới đang đi ngủ rồi, chúc {name} cũng ngủ thật ngon nhé', emoji: '🌍' },
+            { text: 'Chúc {name} một đêm ngọt ngào, bình an và trọn vẹn yêu thương', emoji: '💖' }
         ];
+
+        function formatWishText(template) {
+            return template.replace(/\{name\}/g, recipientName);
+        }
 
         // Bảng màu ruy băng & thân hộp
         const BOX_THEMES = [
@@ -362,6 +521,12 @@
             { lidFrom: '#FBBF24', lidTo: '#D97706', boxFrom: '#F59E0B', boxTo: '#B45309', ribbon: '#FFFBEB', ribbonDark: '#FEF3C7' }
         ];
 
+        // Màu các ô trên vòng quay (20 ô xen kẽ hài hòa)
+        const WHEEL_COLORS = [
+            '#F43F5E', '#8B5CF6', '#EC4899', '#0EA5E9', '#F59E0B',
+            '#E11D48', '#7C3AED', '#DB2777', '#0284C7', '#D97706'
+        ];
+
         // Xáo trộn mảng ngẫu nhiên bằng thuật toán Fisher–Yates
         function shuffleArray(arr) {
             const copy = [...arr];
@@ -370,6 +535,11 @@
                 [copy[i], copy[j]] = [copy[j], copy[i]];
             }
             return copy;
+        }
+
+        // Lấy ngẫu nhiên N lời chúc không trùng lặp từ kho 100 lời chúc
+        function getRandomWishes(count) {
+            return shuffleArray(WISH_POOL).slice(0, count);
         }
 
         // Tạo hiệu ứng bầu trời đầy sao lấp lánh
@@ -483,45 +653,87 @@
             }
         }
 
-        function launchCelebration(originX, originY, count = 42) {
-            for (let i = 0; i < count; i++) {
-                particles.push(new Particle(originX, originY));
-            }
-            if (!animationFrameId) {
-                animateParticles();
-            }
-        }
-
-        function animateParticles() {
+        function animateConfetti() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            particles = particles.filter(p => p.alpha > 0);
+            particles = particles.filter((p) => p.alpha > 0);
             for (const p of particles) {
                 p.update();
                 p.draw(ctx);
             }
             if (particles.length > 0) {
-                animationFrameId = requestAnimationFrame(animateParticles);
+                animationFrameId = requestAnimationFrame(animateConfetti);
             } else {
                 animationFrameId = null;
             }
         }
 
-        // Hệ thống phát file nhạc MP3 (nhac-ru.mp3)
+        function launchCelebration(x, y, count = 45) {
+            for (let i = 0; i < count; i++) {
+                particles.push(new Particle(x, y));
+            }
+            if (!animationFrameId) {
+                animateConfetti();
+            }
+        }
+
+        // Hệ thống phát file nhạc MP3 ngẫu nhiên từ danh sách 10 bài
+        const MUSIC_PLAYLIST = [
+            { title: 'Bài 1', src: '1.mp3' },
+            { title: 'Bài 2', src: '2.mp3' },
+            { title: 'Bài 3', src: '3.mp3' },
+            { title: 'Bài 4', src: '4.mp3' },
+            { title: 'Bài 5', src: '5.mp3' },
+            { title: 'Bài 6', src: '6.mp3' },
+            { title: 'Bài 7', src: '7.mp3' },
+            { title: 'Bài 8', src: '8.mp3' },
+            { title: 'Bài 9', src: '9.mp3' },
+            { title: 'Bài 10', src: '10.mp3' }
+        ];
+
         const lullabyAudio = document.getElementById('lullabyAudio');
+        let currentTrackIndex = Math.floor(Math.random() * MUSIC_PLAYLIST.length);
         let isMusicPlaying = false;
         let userMutedMusic = false;
+
+        function selectRandomTrack(excludeIndex = -1) {
+            if (MUSIC_PLAYLIST.length === 0) return;
+            let nextIndex = Math.floor(Math.random() * MUSIC_PLAYLIST.length);
+            if (MUSIC_PLAYLIST.length > 1 && nextIndex === excludeIndex) {
+                nextIndex = (nextIndex + 1 + Math.floor(Math.random() * (MUSIC_PLAYLIST.length - 1))) % MUSIC_PLAYLIST.length;
+            }
+            currentTrackIndex = nextIndex;
+            if (lullabyAudio) {
+                lullabyAudio.src = MUSIC_PLAYLIST[currentTrackIndex].src;
+                lullabyAudio.load();
+            }
+        }
+
+        // Chọn ngẫu nhiên 1 bài ngay khi vào web
+        selectRandomTrack();
+
+        // Tự động chuyển sang bài ngẫu nhiên khác khi bài hiện tại phát hết
+        if (lullabyAudio) {
+            lullabyAudio.addEventListener('ended', async () => {
+                selectRandomTrack(currentTrackIndex);
+                updateMusicUI();
+                if (!userMutedMusic) {
+                    await startLullabyMusic();
+                }
+            });
+        }
 
         function updateMusicUI() {
             const btn = document.getElementById('musicToggleBtn');
             const label = document.getElementById('musicStatusLabel');
             if (!btn || !label) return;
 
+            const trackTitle = MUSIC_PLAYLIST[currentTrackIndex]?.title || '';
             if (isMusicPlaying) {
                 btn.classList.add('music-playing', 'border-amber-300/50', 'bg-pink-500/25');
-                label.textContent = 'Nhạc ru: Đang phát';
+                label.textContent = `Nhạc (${trackTitle}): Bật`;
             } else {
                 btn.classList.remove('music-playing', 'border-amber-300/50', 'bg-pink-500/25');
-                label.textContent = 'Nhạc ru: Tắt';
+                label.textContent = `Nhạc (${trackTitle}): Tắt`;
             }
         }
 
@@ -534,17 +746,87 @@
             }, 300);
         }
 
+        function showNameInputModal() {
+            const nameModal = document.getElementById('nameInputModal');
+            const nameInput = document.getElementById('recipientNameInput');
+            if (!nameModal) return;
+            nameModal.classList.remove('hidden');
+            requestAnimationFrame(() => {
+                nameModal.classList.remove('opacity-0');
+                if (nameInput) nameInput.focus();
+            });
+        }
+
+        function hideNameInputModal() {
+            const nameModal = document.getElementById('nameInputModal');
+            if (!nameModal) return;
+            nameModal.classList.add('opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                nameModal.classList.add('hidden');
+            }, 300);
+        }
+
+        function applyRecipientName(rawName) {
+            const cleaned = rawName.trim();
+            recipientName = cleaned || 'bạn';
+
+            document.title = `Chúc ${recipientName} ngủ ngon ✨`;
+            const mainHeading = document.getElementById('mainHeading');
+            if (mainHeading) {
+                mainHeading.textContent = `Chúc ${recipientName} ngủ ngon ✨`;
+            }
+
+            const modeGreetingSubtitle = document.getElementById('modeGreetingSubtitle');
+            if (modeGreetingSubtitle) {
+                modeGreetingSubtitle.textContent = `Chào ${recipientName}, hãy chọn 1 trong 2 cách nhận lời chúc ngủ ngon đêm nay nhé!`;
+            }
+
+            // Cập nhật toàn bộ lời chúc trên các hộp quà theo tên mới
+            document.querySelectorAll('#giftGrid .wish-text').forEach((el) => {
+                const template = el.getAttribute('data-template') || '';
+                el.textContent = formatWishText(template);
+            });
+
+            // Cập nhật lại text kết quả vòng quay nếu đang hiển thị
+            const wheelResultText = document.getElementById('wheelResultText');
+            if (wheelResultText && wheelResultText.dataset.template) {
+                wheelResultText.textContent = formatWishText(wheelResultText.dataset.template);
+            }
+        }
+
+        function showModeSelectModal() {
+            const modal = document.getElementById('modeSelectModal');
+            if (!modal) return;
+            modal.classList.remove('hidden');
+            requestAnimationFrame(() => {
+                modal.classList.remove('opacity-0');
+            });
+        }
+
+        function hideModeSelectModal() {
+            const modal = document.getElementById('modeSelectModal');
+            if (!modal) return;
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
         async function startLullabyMusic() {
             if (!lullabyAudio) return;
             try {
+                if (!lullabyAudio.getAttribute('src')) {
+                    selectRandomTrack();
+                }
                 lullabyAudio.volume = 0.75;
                 await lullabyAudio.play();
                 isMusicPlaying = true;
                 updateMusicUI();
             } catch (err) {
-                console.warn('Không thể phát file nhac-ru.mp3 (hãy đảm bảo file nằm cùng thư mục với index.html):', err);
+                const failedSrc = MUSIC_PLAYLIST[currentTrackIndex]?.src || 'file nhạc';
+                console.warn(`Không thể phát ${failedSrc} (hãy đảm bảo file nằm cùng thư mục với index.html):`, err);
                 const label = document.getElementById('musicStatusLabel');
-                if (label) label.textContent = 'Thiếu file nhac-ru.mp3';
+                if (label) label.textContent = `Thiếu ${failedSrc}`;
             }
         }
 
@@ -555,7 +837,188 @@
             updateMusicUI();
         }
 
-        // Render lưới 3x3 (9 hộp quà) với vị trí ngẫu nhiên & giới hạn 1 lượt mở duy nhất
+        // ==========================================
+        // CHẾ ĐỘ 1: VÒNG QUAY MAY MẮN (20 LỜI CHÚC)
+        // ==========================================
+        let wheelWishes = [];
+        let currentWheelRotation = 0; // radian
+        let isWheelSpinning = false;
+        let hasUsedWheelSpin = false;
+
+        function initWheelData() {
+            wheelWishes = getRandomWishes(20);
+            currentWheelRotation = 0;
+            isWheelSpinning = false;
+            hasUsedWheelSpin = false;
+
+            const resultCard = document.getElementById('wheelResultCard');
+            if (resultCard) {
+                resultCard.classList.add('hidden');
+                resultCard.classList.remove('pop-reveal');
+            }
+
+            const spinBtn = document.getElementById('spinWheelBtn');
+            if (spinBtn) {
+                spinBtn.disabled = false;
+                spinBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+                spinBtn.innerHTML = '<span>QUAY</span><span class="text-[9px] font-normal text-amber-100/90">1 lượt</span>';
+            }
+
+            drawWheel();
+        }
+
+        function drawWheel() {
+            const wheelCanvas = document.getElementById('wheelCanvas');
+            if (!wheelCanvas || wheelWishes.length === 0) return;
+
+            const size = window.innerWidth < 640 ? 290 : 340;
+            const dpr = window.devicePixelRatio || 1;
+            wheelCanvas.style.width = `${size}px`;
+            wheelCanvas.style.height = `${size}px`;
+            wheelCanvas.width = size * dpr;
+            wheelCanvas.height = size * dpr;
+
+            const wCtx = wheelCanvas.getContext('2d');
+            wCtx.scale(dpr, dpr);
+
+            const cx = size / 2;
+            const cy = size / 2;
+            const radius = size / 2 - 4;
+            const numSlices = wheelWishes.length; // 20 ô
+            const arc = (Math.PI * 2) / numSlices;
+
+            wCtx.clearRect(0, 0, size, size);
+
+            for (let i = 0; i < numSlices; i++) {
+                const startAngle = currentWheelRotation + i * arc;
+                const endAngle = startAngle + arc;
+
+                // Vẽ từng miếng bánh (1/20 vòng tròn)
+                wCtx.beginPath();
+                wCtx.moveTo(cx, cy);
+                wCtx.arc(cx, cy, radius, startAngle, endAngle);
+                wCtx.closePath();
+                wCtx.fillStyle = WHEEL_COLORS[i % WHEEL_COLORS.length];
+                wCtx.fill();
+
+                wCtx.lineWidth = 1.5;
+                wCtx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
+                wCtx.stroke();
+
+                // Vẽ số thứ tự ô & icon trên từng nan vòng quay
+                wCtx.save();
+                wCtx.translate(cx, cy);
+                wCtx.rotate(startAngle + arc / 2);
+                wCtx.textAlign = 'right';
+                wCtx.textBaseline = 'middle';
+                wCtx.fillStyle = '#FFFBEB';
+                wCtx.font = 'bold 11px Quicksand, sans-serif';
+                wCtx.fillText(`${wheelWishes[i].emoji} #${i + 1}`, radius - 12, 0);
+                wCtx.restore();
+            }
+
+            // Vòng trang trí viền ngoài
+            wCtx.beginPath();
+            wCtx.arc(cx, cy, radius, 0, Math.PI * 2);
+            wCtx.lineWidth = 4;
+            wCtx.strokeStyle = '#FDE047';
+            wCtx.stroke();
+        }
+
+        function spinWheel() {
+            if (isWheelSpinning || hasUsedWheelSpin || wheelWishes.length === 0) return;
+
+            isWheelSpinning = true;
+            if (!userMutedMusic) {
+                startLullabyMusic();
+            }
+
+            const spinBtn = document.getElementById('spinWheelBtn');
+            if (spinBtn) {
+                spinBtn.disabled = true;
+                spinBtn.innerHTML = '<span>ĐANG</span><span class="text-[9px] font-normal text-amber-100/90">QUAY...</span>';
+            }
+
+            const numSlices = wheelWishes.length; // 20
+            const arc = (Math.PI * 2) / numSlices;
+            const winningIndex = Math.floor(Math.random() * numSlices);
+
+            // Kim chỉ ở đỉnh trên cùng (-Math.PI / 2). Tính góc dừng sao cho ô winningIndex nằm đúng dưới kim
+            const sliceCenter = winningIndex * arc + arc / 2;
+            const pointerAngle = -Math.PI / 2;
+            const jitter = (Math.random() - 0.5) * (arc * 0.55);
+            const targetNormalized = ((pointerAngle - sliceCenter + jitter) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
+
+            const extraSpins = (5 + Math.floor(Math.random() * 3)) * Math.PI * 2;
+            const startRotation = currentWheelRotation;
+            const currentNorm = ((startRotation % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+            const deltaAngle = extraSpins + ((targetNormalized - currentNorm + Math.PI * 2) % (Math.PI * 2));
+
+            const duration = 4200;
+            const startTime = performance.now();
+
+            function animateSpin(now) {
+                const elapsed = now - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                // Ease-out cubic mượt mà
+                const eased = 1 - Math.pow(1 - progress, 3);
+
+                currentWheelRotation = startRotation + deltaAngle * eased;
+                drawWheel();
+
+                if (progress < 1) {
+                    requestAnimationFrame(animateSpin);
+                } else {
+                    isWheelSpinning = false;
+                    hasUsedWheelSpin = true;
+
+                    if (spinBtn) {
+                        spinBtn.classList.add('opacity-65', 'cursor-not-allowed');
+                        spinBtn.innerHTML = '<span>XONG</span><span class="text-[9px] font-normal text-amber-100/90">✨</span>';
+                    }
+
+                    const wonWish = wheelWishes[winningIndex];
+                    const resultCard = document.getElementById('wheelResultCard');
+                    const resultBadge = document.getElementById('wheelResultBadge');
+                    const resultText = document.getElementById('wheelResultText');
+
+                    if (resultBadge) {
+                        resultBadge.textContent = `${wonWish.emoji} Ô số #${winningIndex + 1} dành cho ${recipientName}`;
+                    }
+                    if (resultText) {
+                        resultText.dataset.template = wonWish.text;
+                        resultText.textContent = formatWishText(wonWish.text);
+                    }
+                    if (resultCard) {
+                        resultCard.classList.remove('hidden');
+                        resultCard.classList.add('pop-reveal');
+                    }
+
+                    const statusSubtitle = document.getElementById('statusSubtitle');
+                    const turnFooterText = document.getElementById('turnFooterText');
+                    if (statusSubtitle) {
+                        statusSubtitle.textContent = 'Vòng quay đã dừng lại — tải lại trang nếu muốn quay lượt mới nhé! ✨';
+                        statusSubtitle.classList.remove('text-indigo-200/90');
+                        statusSubtitle.classList.add('text-amber-200', 'font-semibold');
+                    }
+                    if (turnFooterText) {
+                        turnFooterText.innerHTML = '🎡 Bạn đã nhận được lời chúc từ vòng quay — chúc ngủ thật ngon nhé!';
+                    }
+
+                    const wheelCanvas = document.getElementById('wheelCanvas');
+                    if (wheelCanvas) {
+                        const rect = wheelCanvas.getBoundingClientRect();
+                        launchCelebration(rect.left + rect.width / 2, rect.top + rect.height * 0.35, 55);
+                    }
+                }
+            }
+
+            requestAnimationFrame(animateSpin);
+        }
+
+        // ==========================================
+        // CHẾ ĐỘ 2: 9 HỘP QUÀ BÍ MẬT (NHƯ CŨ)
+        // ==========================================
         let chosenCardIndex = null;
 
         function showLockedToast() {
@@ -596,7 +1059,13 @@
             grid.innerHTML = '';
             chosenCardIndex = null;
 
-            const shuffledGifts = shuffleArray(GIFT_ITEMS);
+            // Chọn ngẫu nhiên 9 lời chúc từ kho 100 lời chúc
+            const shuffledGifts = getRandomWishes(9).map((wish, idx) => ({
+                id: `wish-${idx + 1}`,
+                isEmpty: false,
+                text: wish.text,
+                emoji: wish.emoji
+            }));
 
             shuffledGifts.forEach((item, index) => {
                 const theme = BOX_THEMES[index % BOX_THEMES.length];
@@ -613,8 +1082,8 @@
                         <div class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider ${item.isEmpty ? 'text-slate-400' : 'text-pink-400'} mb-0.5">
                             ${item.emoji} ${item.isEmpty ? 'Hộp trống' : 'Lời chúc'}
                         </div>
-                        <p class="${item.isEmpty ? 'text-[11px] sm:text-xs font-semibold text-slate-600 leading-snug' : 'font-script text-lg sm:text-2xl font-bold leading-snug'}">
-                            ${item.text}
+                        <p data-template="${item.text}" class="wish-text ${item.isEmpty ? 'text-[11px] sm:text-xs font-semibold text-slate-600 leading-snug' : 'font-script text-lg sm:text-2xl font-bold leading-snug'}">
+                            ${formatWishText(item.text)}
                         </p>
                         <button type="button" data-action="close"
                                 class="mt-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-semibold ${item.isEmpty ? 'bg-slate-200 hover:bg-slate-300 text-slate-700' : 'bg-pink-200/80 hover:bg-pink-300/80 text-rose-900'} transition">
@@ -726,9 +1195,69 @@
             });
         }
 
+        function switchMode(mode) {
+            currentMode = mode;
+            const wheelSection = document.getElementById('wheelSection');
+            const boxSection = document.getElementById('boxSection');
+            const modeBadgeText = document.getElementById('modeBadgeText');
+            const statusSubtitle = document.getElementById('statusSubtitle');
+            const turnFooterText = document.getElementById('turnFooterText');
+            const switchModeBtn = document.getElementById('switchModeBtn');
+
+            if (switchModeBtn) {
+                switchModeBtn.classList.remove('hidden');
+            }
+
+            if (statusSubtitle) {
+                statusSubtitle.classList.remove('text-amber-200', 'font-semibold');
+                statusSubtitle.classList.add('text-indigo-200/90');
+            }
+
+            if (mode === 'wheel') {
+                if (boxSection) boxSection.classList.add('hidden');
+                if (wheelSection) {
+                    wheelSection.classList.remove('hidden');
+                    wheelSection.classList.add('flex');
+                }
+                if (modeBadgeText) {
+                    modeBadgeText.textContent = 'Vòng quay 20 lời chúc • 1 lượt quay';
+                }
+                if (statusSubtitle) {
+                    statusSubtitle.textContent = 'Bấm nút QUAY ở giữa để nhận ngẫu nhiên 1 trong 20 lời chúc ngủ ngon!';
+                }
+                if (turnFooterText) {
+                    turnFooterText.innerHTML = '🎡 Bạn đang có <span class="text-pink-300 font-bold">1 lượt quay</span> — chúc may mắn nhé!';
+                }
+                initWheelData();
+            } else {
+                if (wheelSection) {
+                    wheelSection.classList.add('hidden');
+                    wheelSection.classList.remove('flex');
+                }
+                if (boxSection) boxSection.classList.remove('hidden');
+                if (modeBadgeText) {
+                    modeBadgeText.textContent = '9 hộp quà bí mật • Chỉ 1 lượt mở';
+                }
+                if (statusSubtitle) {
+                    statusSubtitle.textContent = 'Có 9 lời chúc ngủ ngon bí mật — chỉ được mở 1 hộp duy nhất nhé!';
+                }
+                if (turnFooterText) {
+                    turnFooterText.innerHTML = '🎁 Bạn đang có <span class="text-pink-300 font-bold">1 lượt mở quà</span> — hãy chọn hộp mình thích nhất!';
+                }
+                renderShuffledGifts();
+            }
+        }
+
+        window.addEventListener('resize', () => {
+            if (currentMode === 'wheel') {
+                drawWheel();
+            }
+        });
+
         window.addEventListener('DOMContentLoaded', () => {
             createStarfield();
             renderShuffledGifts();
+            updateMusicUI();
 
             const musicToggleBtn = document.getElementById('musicToggleBtn');
             if (musicToggleBtn) {
@@ -743,9 +1272,24 @@
                 });
             }
 
+            const nextTrackBtn = document.getElementById('nextTrackBtn');
+            if (nextTrackBtn) {
+                nextTrackBtn.addEventListener('click', async () => {
+                    selectRandomTrack(currentTrackIndex);
+                    updateMusicUI();
+                    if (isMusicPlaying || !userMutedMusic) {
+                        userMutedMusic = false;
+                        await startLullabyMusic();
+                    }
+                });
+            }
+
             const closeMusicModalBtn = document.getElementById('closeMusicModalBtn');
             if (closeMusicModalBtn) {
-                closeMusicModalBtn.addEventListener('click', hideMusicIntroModal);
+                closeMusicModalBtn.addEventListener('click', () => {
+                    hideMusicIntroModal();
+                    showNameInputModal();
+                });
             }
 
             const enableMusicFromModalBtn = document.getElementById('enableMusicFromModalBtn');
@@ -754,7 +1298,60 @@
                     userMutedMusic = false;
                     await startLullabyMusic();
                     hideMusicIntroModal();
+                    showNameInputModal();
                 });
+            }
+
+            const nameInputForm = document.getElementById('nameInputForm');
+            const recipientNameInput = document.getElementById('recipientNameInput');
+            const nameErrorText = document.getElementById('nameErrorText');
+            if (nameInputForm && recipientNameInput) {
+                nameInputForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const value = recipientNameInput.value.trim();
+                    if (!value) {
+                        if (nameErrorText) nameErrorText.classList.remove('hidden');
+                        recipientNameInput.focus();
+                        return;
+                    }
+                    if (nameErrorText) nameErrorText.classList.add('hidden');
+                    applyRecipientName(value);
+                    hideNameInputModal();
+                    showModeSelectModal();
+                });
+            }
+
+            const chooseWheelModeBtn = document.getElementById('chooseWheelModeBtn');
+            if (chooseWheelModeBtn) {
+                chooseWheelModeBtn.addEventListener('click', () => {
+                    hideModeSelectModal();
+                    switchMode('wheel');
+                });
+            }
+
+            const chooseBoxModeBtn = document.getElementById('chooseBoxModeBtn');
+            if (chooseBoxModeBtn) {
+                chooseBoxModeBtn.addEventListener('click', () => {
+                    hideModeSelectModal();
+                    switchMode('box');
+                });
+            }
+
+            const switchModeBtn = document.getElementById('switchModeBtn');
+            if (switchModeBtn) {
+                switchModeBtn.addEventListener('click', () => {
+                    showModeSelectModal();
+                });
+            }
+
+            const spinWheelBtn = document.getElementById('spinWheelBtn');
+            if (spinWheelBtn) {
+                spinWheelBtn.addEventListener('click', spinWheel);
+            }
+
+            const wheelCanvas = document.getElementById('wheelCanvas');
+            if (wheelCanvas) {
+                wheelCanvas.addEventListener('click', spinWheel);
             }
         });
     </script>
