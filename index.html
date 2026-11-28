@@ -3,15 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>dthh</title>
-    <!-- Tải Tailwind CSS -->
+    <title>Lời chúc theo thời gian thực</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Tải Google Fonts hỗ trợ tiếng Việt mềm mại -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
-    
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
         :root {
             --night-top: #090d16;
             --night-mid: #161b33;
@@ -20,740 +16,598 @@
 
         * {
             box-sizing: border-box;
+            user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
 
         body {
+            font-family: 'Inter', sans-serif;
             margin: 0;
-            padding: 0;
             min-height: 100vh;
-            min-height: 100dvh;
-            overflow-x: hidden;
-            overflow-y: auto;
-            font-family: 'Quicksand', sans-serif;
+            color: #ffffff;
             background: radial-gradient(ellipse at bottom, var(--night-bottom) 0%, var(--night-mid) 45%, var(--night-top) 100%);
-            color: #fff;
-            user-select: none;
+            transition: background 1s ease;
+            overflow-x: hidden;
+            position: relative;
         }
 
-        .font-script {
-            font-family: 'Dancing Script', cursive;
-        }
-
-        /* Sao lấp lánh nền */
-        .star {
+        #starfield {
             position: fixed;
-            background-color: #fff;
-            border-radius: 50%;
-            animation: twinkle var(--duration, 3s) ease-in-out infinite;
-            animation-delay: var(--delay, 0s);
-            opacity: 0.2;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .star {
+            position: absolute;
+            border-radius: 9999px;
+            background: #ffffff;
+            opacity: 0.7;
+            animation: twinkle var(--duration, 3s) ease-in-out var(--delay, 0s) infinite alternate;
+            will-change: opacity, transform;
+        }
+
+        body.paused-animations .star {
+            animation-play-state: paused;
         }
 
         @keyframes twinkle {
-            0%, 100% {
-                opacity: 0.2;
-                transform: scale(0.8);
+            0% {
+                opacity: 0.25;
+                transform: scale3d(0.85, 0.85, 1);
             }
-            50% {
-                opacity: 1;
-                transform: scale(1.3);
-                box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
-            }
-        }
-
-        @keyframes floatCloud {
-            0%, 100% {
-                transform: translateX(0px) translateY(0px);
-            }
-            50% {
-                transform: translateX(15px) translateY(-6px);
+            100% {
+                opacity: 0.95;
+                transform: scale3d(1.15, 1.15, 1);
             }
         }
 
-        .cloud-float-1 {
-            animation: floatCloud 7s ease-in-out infinite;
+        .glass-panel {
+            background: rgba(17, 24, 39, 0.78);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
         }
 
-        .cloud-float-2 {
-            animation: floatCloud 9s ease-in-out infinite reverse;
+        .gift-card {
+            background: transparent;
+            border: none;
+            transition: transform 0.25s ease;
+            will-change: transform;
         }
 
-        @keyframes moonGlow {
-            0%, 100% {
-                filter: drop-shadow(0 0 15px rgba(254, 240, 138, 0.5));
-                transform: rotate(-8deg) scale(1);
-            }
-            50% {
-                filter: drop-shadow(0 0 25px rgba(254, 240, 138, 0.85));
-                transform: rotate(-4deg) scale(1.03);
-            }
+        .gift-card:hover:not(.opened) {
+            transform: translate3d(0, -5px, 0) scale(1.03);
         }
 
-        .moon-animate {
-            animation: moonGlow 6s ease-in-out infinite;
+        .gift-card:not(.opened) {
+            animation: giftWiggle var(--wiggle-duration, 3.4s) ease-in-out var(--wiggle-delay, 0s) infinite;
         }
 
-        /* Rung lắc từng hộp quà */
-        @keyframes giftWobble {
-            0%, 100% { transform: rotate(0deg) scale(1); }
-            15% { transform: rotate(-3.5deg) scale(1.03); }
-            30% { transform: rotate(3.5deg) scale(1.03); }
-            45% { transform: rotate(-2.5deg) scale(1.02); }
-            60% { transform: rotate(2.5deg) scale(1.02); }
-            75% { transform: rotate(-1deg) scale(1.01); }
+        .gift-card.opened {
+            animation: none;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(253, 224, 71, 0.35);
         }
 
-        .gift-wobble {
-            animation: giftWobble var(--wobble-dur, 3s) ease-in-out infinite;
-            animation-delay: var(--wobble-delay, 0s);
-            transform-origin: bottom center;
-        }
-
-        .gift-wobble:hover {
+        body.paused-animations .gift-card:not(.opened) {
             animation-play-state: paused;
-            transform: scale(1.05);
-            transition: transform 0.2s ease;
         }
 
-        /* Trạng thái các hộp còn lại bị khóa sau khi đã dùng 1 lượt mở */
-        .gift-card.locked {
-            opacity: 0.45;
-            filter: grayscale(0.45);
-            transition: opacity 0.5s ease, filter 0.5s ease;
+        @keyframes giftWiggle {
+            0%, 78%, 100% {
+                transform: translate3d(0, 0, 0) rotate(0deg);
+            }
+            82% {
+                transform: translate3d(0, -3px, 0) rotate(-3.5deg);
+            }
+            86% {
+                transform: translate3d(0, -4px, 0) rotate(3.5deg);
+            }
+            90% {
+                transform: translate3d(0, -2px, 0) rotate(-2.5deg);
+            }
+            94% {
+                transform: translate3d(0, 0, 0) rotate(1.5deg);
+            }
         }
 
-        .gift-card.locked .gift-trigger {
-            cursor: not-allowed;
-        }
-
-        .gift-card.locked .lock-badge {
-            opacity: 1;
-            transform: scale(1);
-        }
-
-        .lock-badge {
-            opacity: 0;
-            transform: scale(0.6);
-            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        /* Nắp hộp bật mở */
-        .gift-lid {
-            transition: transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.55s ease;
-            transform-origin: 90% 80%;
-            z-index: 20;
-        }
-
-        .gift-card.opened .gift-lid {
-            transform: translateY(-20px) translateX(48px) rotate(36deg) scale(0.86);
-            opacity: 0.4;
-            z-index: 10;
-        }
-
-        /* Hào quang khi mở */
-        /* Pop-up lời chúc khi mở hộp (hiển thị nổi phía trên hộp để không làm giãn khoảng cách lưới) */
-        .message-bubble {
-            position: absolute;
-            bottom: calc(100% - 10px);
-            left: 50%;
-            width: 168px;
-            opacity: 0;
-            transform: translateX(-50%) translateY(10px) scale(0.82);
-            pointer-events: none;
-            transition: all 0.45s cubic-bezier(0.22, 1, 0.36, 1);
-            z-index: 40;
+        .gift-visual {
+            position: relative;
+            width: 64px;
+            height: 60px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            margin-bottom: 6px;
         }
 
         @media (min-width: 640px) {
-            .message-bubble {
-                width: 210px;
+            .gift-visual {
+                width: 78px;
+                height: 72px;
             }
         }
 
-        .gift-card.opened .message-bubble {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0) scale(1);
-            pointer-events: auto;
+        .gift-bow {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: -4px;
+            z-index: 4;
         }
 
-        .warm-text-glow {
-            color: #9d174d;
-            text-shadow: 0 0 10px rgba(244, 114, 182, 0.35), 0 1px 1px rgba(255, 255, 255, 0.9);
+        .gift-bow-loop {
+            width: 12px;
+            height: 8px;
+            border-radius: 9999px;
+            border: 2.5px solid var(--ribbon-color, #fde047);
         }
 
-        #confetti-canvas {
+        .gift-bow-knot {
+            width: 7px;
+            height: 7px;
+            border-radius: 2px;
+            background: var(--ribbon-dark, #facc15);
+            margin: 0 -2px;
+        }
+
+        .gift-lid {
+            position: relative;
+            width: 100%;
+            height: 15px;
+            border-radius: 6px;
+            background: linear-gradient(135deg, var(--lid-from, #f43f5e), var(--lid-to, #e11d48));
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
+            z-index: 3;
+            overflow: hidden;
+        }
+
+        .gift-lid::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 11px;
+            transform: translateX(-50%);
+            background: var(--ribbon-color, #fde047);
+        }
+
+        .gift-box-body {
+            position: relative;
+            width: 88%;
+            height: 36px;
+            border-radius: 0 0 8px 8px;
+            background: linear-gradient(180deg, var(--box-from, #fb7185), var(--box-to, #be123c));
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.4);
+            z-index: 2;
+            overflow: hidden;
+        }
+
+        @media (min-width: 640px) {
+            .gift-box-body {
+                height: 44px;
+            }
+        }
+
+        .gift-box-body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 11px;
+            transform: translateX(-50%);
+            background: var(--ribbon-color, #fde047);
+        }
+
+        .gift-box-body::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 46%;
+            height: 7px;
+            transform: translateY(-50%);
+            background: var(--ribbon-dark, #facc15);
+            opacity: 0.92;
+        }
+
+        .wheel-pointer {
+            width: 0;
+            height: 0;
+            border-left: 14px solid transparent;
+            border-right: 14px solid transparent;
+            border-top: 26px solid #facc15;
+            filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
+            z-index: 15;
+        }
+
+        .board-cell {
+            aspect-ratio: 1 / 1;
+            border-radius: 6px;
+            background: rgba(15, 23, 42, 0.72);
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            transition: background-color 0.12s ease, transform 0.12s ease;
+        }
+
+        .board-cell.filled {
+            border-color: rgba(255, 255, 255, 0.35);
+            box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.35);
+        }
+
+        .board-cell.preview-valid {
+            background: rgba(52, 211, 153, 0.35);
+            border-color: rgba(110, 231, 183, 0.85);
+        }
+
+        .board-cell.preview-invalid {
+            background: rgba(248, 113, 113, 0.35);
+            border-color: rgba(252, 165, 165, 0.85);
+        }
+
+        .piece-slot {
+            min-height: 82px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: none;
+        }
+
+        .piece-grid {
+            display: grid;
+            gap: 2px;
+            cursor: grab;
+            touch-action: none;
+        }
+
+        .piece-grid:active {
+            cursor: grabbing;
+        }
+
+        .piece-cell {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+        }
+
+        #dragFloatingPiece {
+            position: fixed;
+            pointer-events: none;
+            z-index: 70;
+            display: none;
+            transform: translate3d(-50%, -115%, 0);
+            will-change: transform;
+        }
+
+        #confettiCanvas {
             position: fixed;
             inset: 0;
-            width: 100%;
-            height: 100%;
             pointer-events: none;
-            z-index: 60;
+            z-index: 80;
         }
 
-        /* Hiệu ứng nốt nhạc bay nhẹ khi đang phát */
-        @keyframes musicBeat {
-            0%, 100% { transform: scale(1) rotate(0deg); }
-            50% { transform: scale(1.18) rotate(-6deg); }
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
         }
 
-        .music-playing .music-icon {
-            display: inline-block;
-            animation: musicBeat 1.2s ease-in-out infinite;
+        .custom-scroll::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 9999px;
         }
 
-        /* Hiệu ứng xuất hiện thẻ kết quả vòng quay */
-        @keyframes popReveal {
-            0% { opacity: 0; transform: scale(0.75) translateY(12px); }
-            100% { opacity: 1; transform: scale(1) translateY(0); }
-        }
-
-        .pop-reveal {
-            animation: popReveal 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 9999px;
         }
     </style>
 </head>
-<body class="relative flex flex-col items-center justify-center min-h-screen px-4 py-6">
-    <!-- Thẻ phát nhạc ru MP3 đặt cùng thư mục với index.html -->
-    <audio id="lullabyAudio" src="nhac-ru.mp3" preload="auto"></audio>
+<body>
+    <div id="starfield"></div>
+    <canvas id="confettiCanvas"></canvas>
+    <div id="dragFloatingPiece"></div>
 
-    <!-- Lớp nền sao lấp lánh -->
-    <div id="starfield" class="fixed inset-0 pointer-events-none z-0"></div>
+    <!-- Thẻ audio phát 10 bài nhạc ngẫu nhiên (1.mp3 -> 10.mp3) -->
+    <audio id="lullabyAudio" preload="auto"></audio>
 
-    <!-- Canvas hiệu ứng pháo giấy, ngôi sao & trái tim bay tỏa -->
-    <canvas id="confetti-canvas"></canvas>
+    <!-- Thanh công cụ phía trên -->
+    <header class="relative z-20 max-w-5xl mx-auto px-3 sm:px-6 pt-3 sm:pt-5 flex flex-wrap items-center justify-between gap-2">
+        <div class="flex flex-wrap items-center gap-2">
+            <button id="toggleMusicBtn" onclick="toggleMusic()" class="px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 text-xs sm:text-sm font-semibold flex items-center gap-1.5 transition">
+                <span id="musicIcon">🔇</span>
+                <span id="musicLabel">Bật nhạc</span>
+            </button>
+            <button onclick="playRandomTrack(true)" title="Đổi bài nhạc khác" class="p-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 text-xs sm:text-sm font-semibold transition">
+                🔀
+            </button>
+            <button onclick="openCollectionModal()" class="px-3 py-2 rounded-full bg-amber-400/15 hover:bg-amber-400/25 border border-amber-300/35 text-amber-200 text-xs sm:text-sm font-semibold flex items-center gap-1.5 transition">
+                <span>📚</span>
+                <span>Bộ sưu tập</span>
+                <span id="collectionCountBadge" class="px-1.5 py-0.5 rounded-full bg-amber-300 text-slate-950 text-[11px] font-extrabold">0</span>
+            </button>
+            <button onclick="openSettingsModal()" class="px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 text-xs sm:text-sm font-semibold flex items-center gap-1.5 transition">
+                <span>⚙️</span>
+                <span>Cài đặt</span>
+            </button>
+        </div>
 
-    <!-- Nút Bật/Tắt nhạc ru ở góc trên trái -->
-    <div class="fixed top-4 left-4 sm:top-6 sm:left-6 z-40 flex items-center gap-1.5">
-        <button id="musicToggleBtn" type="button" aria-label="Bật hoặc tắt nhạc chúc bé ngủ ngon"
-                class="flex items-center gap-2 px-3.5 py-2 rounded-full bg-white/15 hover:bg-white/25 active:scale-95 backdrop-blur-md border border-white/25 text-amber-100 text-xs sm:text-sm font-semibold shadow-lg transition">
-            <span class="music-icon text-sm sm:text-base">🎵</span>
-            <span id="musicStatusLabel">Nhạc ru: Tắt</span>
-        </button>
-        <button id="nextTrackBtn" type="button" title="Đổi bài nhạc ngẫu nhiên khác" aria-label="Đổi bài nhạc ngẫu nhiên khác"
-                class="px-2.5 py-2 rounded-full bg-white/15 hover:bg-white/25 active:scale-95 backdrop-blur-md border border-white/25 text-amber-100 text-xs sm:text-sm font-semibold shadow-lg transition">
-            🔀
-        </button>
-    </div>
+        <div class="flex items-center gap-2">
+            <span id="liveClockBadge" class="px-3 py-1.5 rounded-full bg-white/10 border border-white/15 text-xs font-medium text-indigo-100">
+                🕒 --:-- • --
+            </span>
+            <button onclick="showModeSelectModal()" class="px-3 py-1.5 rounded-full bg-pink-500/25 hover:bg-pink-500/40 border border-pink-300/35 text-pink-100 text-xs sm:text-sm font-semibold transition">
+                Đổi chế độ ⇄
+            </button>
+        </div>
+    </header>
 
-    <!-- Bảng nhắc bật nhạc ở giữa màn hình khi vừa vào trang -->
-    <div id="musicIntroModal"
-         class="fixed inset-0 z-50 flex items-center justify-center px-4 bg-slate-950/60 backdrop-blur-sm transition-opacity duration-300">
-        <div class="w-full max-w-xs sm:max-w-sm rounded-3xl bg-gradient-to-br from-[#1d2240] to-[#2c254e] border border-pink-300/35 p-5 sm:p-6 text-center shadow-2xl">
-            <div class="text-3xl mb-2">🎵🌙</div>
-            <h2 class="font-script text-2xl sm:text-3xl text-amber-100 mb-1.5">
-                Nhớ bật nhạc trước nha
-            </h2>
-            <p class="text-xs sm:text-sm text-indigo-100/90 leading-relaxed mb-4">
-                Bật nhạc ru để nghe giai điệu dịu êm trước khi nhập tên và mở quà nhé ✨
+    <!-- Nội dung chính -->
+    <main class="relative z-10 max-w-5xl mx-auto px-3 sm:px-6 pt-4 pb-12">
+        <div class="text-center mb-5 sm:mb-7">
+            <h1 id="mainHeading" class="text-2xl sm:text-4xl font-extrabold tracking-tight text-white drop-shadow">
+                Chúc ngủ ngon 🌙
+            </h1>
+            <p id="trackInfoText" class="text-xs text-indigo-200/80 mt-1">
+                Đang chọn bài nhạc ngẫu nhiên (1.mp3 – 10.mp3)
             </p>
-            <div class="flex items-center justify-center gap-2.5">
-                <button id="enableMusicFromModalBtn" type="button"
-                        class="px-4 py-2 rounded-full bg-pink-500/80 hover:bg-pink-500 active:scale-95 text-white text-xs sm:text-sm font-semibold shadow transition">
-                    Bật nhạc ngay 🎶
-                </button>
-                <button id="closeMusicModalBtn" type="button"
-                        class="px-4 py-2 rounded-full bg-white/15 hover:bg-white/25 active:scale-95 border border-white/25 text-amber-100 text-xs sm:text-sm font-semibold transition">
+        </div>
+
+        <!-- Chế độ 1: 9 hộp quà bí mật -->
+        <section id="boxModeSection" class="hidden">
+            <div class="text-center mb-4">
+                <p id="boxStatusBanner" class="inline-block px-4 py-1.5 rounded-full bg-white/10 border border-white/15 text-xs sm:text-sm text-amber-200 font-medium">
+                    🎁 Bạn có 1 lượt mở duy nhất trong 9 hộp quà — Hãy chọn thật kỹ nhé!
+                </p>
+            </div>
+            <div id="giftGrid" class="grid grid-cols-3 gap-2.5 sm:gap-4 max-w-3xl mx-auto"></div>
+        </section>
+
+        <!-- Chế độ 2: Vòng quay 20 ô lời chúc -->
+        <section id="wheelModeSection" class="hidden flex flex-col items-center">
+            <p id="wheelStatusBanner" class="mb-4 px-4 py-1.5 rounded-full bg-white/10 border border-white/15 text-xs sm:text-sm text-amber-200 font-medium text-center">
+                🎡 Vòng quay 20 lời chúc ngẫu nhiên — Bạn có 1 lượt quay duy nhất!
+            </p>
+            <div class="relative flex flex-col items-center justify-center">
+                <div class="wheel-pointer -mb-2"></div>
+                <div class="relative w-[290px] h-[290px] sm:w-[350px] sm:h-[350px] rounded-full p-2 bg-white/15 border border-white/25 shadow-2xl">
+                    <canvas id="wheelCanvas" class="w-full h-full rounded-full block"></canvas>
+                    <button id="spinWheelBtn" onclick="spinWheel()" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-amber-300 via-yellow-400 to-orange-500 text-slate-950 font-extrabold text-sm sm:text-base shadow-xl border-4 border-white hover:scale-105 active:scale-95 transition z-10">
+                        QUAY
+                    </button>
+                </div>
+            </div>
+            <div id="wheelResultCard" class="hidden mt-5 max-w-lg w-full glass-panel rounded-2xl p-4 sm:p-5 text-center">
+                <div id="wheelResultBadge" class="text-xs font-bold uppercase tracking-wider text-amber-300 mb-1"></div>
+                <p id="wheelResultText" class="text-sm sm:text-base font-medium text-white leading-relaxed"></p>
+            </div>
+        </section>
+
+        <!-- Chế độ 3: Xếp hình Block Blast 8x8 -->
+        <section id="blockBlastSection" class="hidden max-w-md mx-auto">
+            <div class="glass-panel rounded-3xl p-4 sm:p-5">
+                <div class="flex items-center justify-between mb-3">
+                    <div>
+                        <div class="text-[11px] uppercase tracking-wider text-indigo-200/80">Điểm hiện tại</div>
+                        <div id="bbScore" class="text-2xl font-extrabold text-amber-300">0</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-[11px] uppercase tracking-wider text-indigo-200/80">Kỷ lục</div>
+                        <div id="bbBestScore" class="text-lg font-bold text-emerald-300">0</div>
+                    </div>
+                    <button onclick="resetBlockBlast()" class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-xs font-semibold transition">
+                        Ván mới
+                    </button>
+                </div>
+
+                <!-- Bàn cờ 8x8 -->
+                <div id="bbBoard" class="grid grid-cols-8 gap-1.5 p-2.5 rounded-2xl bg-slate-950/75 border border-white/10"></div>
+
+                <!-- 3 khối gạch để kéo thả -->
+                <div id="bbTray" class="grid grid-cols-3 gap-2 mt-4"></div>
+
+                <p class="text-[11px] text-center text-indigo-200/75 mt-3">
+                    Kéo thả khối vào bàn cờ 8×8. Lấp đầy hàng hoặc cột để ghi điểm &amp; nhận lời chúc!
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal 1: Nhắc bật nhạc -->
+    <div id="musicPromptModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 transition-opacity duration-300">
+        <div class="glass-panel max-w-sm w-full rounded-3xl p-6 text-center">
+            <div class="text-4xl mb-3">🎵</div>
+            <h2 class="text-xl font-bold mb-2">Bật nhạc nền thư giãn?</h2>
+            <p class="text-sm text-indigo-100/85 mb-5">
+                Trang sẽ phát ngẫu nhiên 1 trong 10 bài nhạc để không gian thêm nhẹ nhàng.
+            </p>
+            <div class="flex gap-3">
+                <button onclick="dismissMusicPrompt(false)" class="flex-1 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-sm font-semibold transition">
                     Bỏ qua
+                </button>
+                <button onclick="dismissMusicPrompt(true)" class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 hover:brightness-110 text-sm font-bold shadow-lg transition">
+                    Bật nhạc ngay
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Bảng bắt buộc nhập tên sau khi qua bước bật nhạc -->
-    <div id="nameInputModal"
-         class="hidden fixed inset-0 z-50 flex items-center justify-center px-4 bg-slate-950/65 backdrop-blur-sm opacity-0 transition-opacity duration-300">
-        <form id="nameInputForm"
-              class="w-full max-w-xs sm:max-w-sm rounded-3xl bg-gradient-to-br from-[#1d2240] to-[#2c254e] border border-pink-300/35 p-5 sm:p-6 text-center shadow-2xl">
-            <div class="text-3xl mb-2">💌✨</div>
-            <h2 class="font-script text-2xl sm:text-3xl text-amber-100 mb-1.5">
-                Nhập tên của bạn nha
-            </h2>
-            <p class="text-xs sm:text-sm text-indigo-100/90 leading-relaxed mb-4">
-                Để hộp quà gửi lời chúc ngủ ngon dành riêng cho bạn nè 🌙
+    <!-- Modal 2: Nhập tên người nhận -->
+    <div id="nameInputModal" class="hidden opacity-0 fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 transition-opacity duration-300">
+        <form id="nameInputForm" onsubmit="handleNameSubmit(event)" class="glass-panel max-w-sm w-full rounded-3xl p-6 text-center">
+            <div class="text-4xl mb-3">✨</div>
+            <h2 class="text-xl font-bold mb-1.5">Nhập tên của bạn</h2>
+            <p class="text-sm text-indigo-100/85 mb-4">
+                Tên này sẽ được dùng cho tiêu đề và toàn bộ lời chúc dành riêng cho bạn.
             </p>
-            <input id="recipientNameInput" type="text" maxlength="25" required autocomplete="off"
-                   placeholder="Ví dụ: dth, bé, Minh Anh..."
-                   class="w-full px-4 py-2.5 rounded-2xl bg-white/15 border border-pink-200/40 text-center text-white placeholder-indigo-200/60 text-sm sm:text-base font-semibold focus:outline-none focus:border-pink-300 focus:bg-white/20 transition" />
-            <p id="nameErrorText" class="hidden text-[11px] text-rose-300 font-semibold mt-1.5">
-                Bạn nhập tên trước khi tiếp tục nhé!
-            </p>
-            <button type="submit"
-                    class="mt-4 w-full py-2.5 rounded-full bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-400 hover:to-rose-400 active:scale-95 text-white text-xs sm:text-sm font-bold shadow-lg transition">
-                Tiếp tục ✨
+            <input id="recipientNameInput" type="text" required maxlength="30" placeholder="Ví dụ: Minh Anh, Bảo..." class="w-full px-4 py-3 rounded-2xl bg-slate-900/90 border border-white/20 text-white placeholder-indigo-200/45 text-sm focus:outline-none focus:border-amber-300 mb-4">
+            <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-extrabold text-sm shadow-lg hover:brightness-110 transition">
+                Tiếp tục →
             </button>
         </form>
     </div>
 
-    <!-- Bảng chọn 1 trong 2 chế độ sau khi nhập xong tên -->
-    <div id="modeSelectModal"
-         class="hidden fixed inset-0 z-50 flex items-center justify-center px-4 bg-slate-950/65 backdrop-blur-sm opacity-0 transition-opacity duration-300">
-        <div class="w-full max-w-xs sm:max-w-md rounded-3xl bg-gradient-to-br from-[#1d2240] to-[#2c254e] border border-pink-300/35 p-5 sm:p-6 text-center shadow-2xl">
-            <div class="text-3xl mb-2">✨🎡🎁</div>
-            <h2 class="font-script text-2xl sm:text-3xl text-amber-100 mb-1">
-                Chọn chế độ nhận lời chúc
-            </h2>
-            <p id="modeGreetingSubtitle" class="text-xs sm:text-sm text-indigo-100/90 leading-relaxed mb-4">
-                Chào bạn, hãy chọn cách nhận lời chúc ngủ ngon đêm nay nhé!
+    <!-- Modal 3: Chọn chế độ -->
+    <div id="modeSelectModal" class="hidden opacity-0 fixed inset-0 z-40 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4 transition-opacity duration-300">
+        <div class="glass-panel max-w-md w-full rounded-3xl p-6 text-center">
+            <div class="text-3xl mb-2">🌟 🎡 🎁 🧩</div>
+            <h2 class="text-xl sm:text-2xl font-extrabold mb-1">Chọn chế độ</h2>
+            <p id="modeGreetingSubtitle" class="text-xs sm:text-sm text-indigo-100/85 mb-5">
+                Chào bạn, hãy chọn chế độ bạn muốn trải nghiệm!
             </p>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <button id="chooseWheelModeBtn" type="button"
-                        class="flex flex-col items-center justify-center p-4 rounded-2xl bg-gradient-to-br from-pink-500/30 to-purple-500/30 hover:from-pink-500/45 hover:to-purple-500/45 active:scale-95 border border-pink-300/40 text-white shadow-lg transition">
-                    <span class="text-2xl sm:text-3xl mb-1.5">🎡</span>
-                    <span class="font-bold text-sm sm:text-base text-amber-100">Quay vòng quay</span>
+
+            <div class="grid grid-cols-1 gap-2.5 text-left mb-4">
+                <button onclick="selectMode('wheel')" class="w-full p-3.5 rounded-2xl bg-purple-600/35 hover:bg-purple-600/55 border border-purple-300/35 flex items-center gap-3 transition">
+                    <span class="text-2xl">🎡</span>
+                    <span class="font-bold text-sm sm:text-base">Quay vòng quay</span>
                 </button>
-                <button id="chooseBoxModeBtn" type="button"
-                        class="flex flex-col items-center justify-center p-4 rounded-2xl bg-gradient-to-br from-amber-500/25 to-rose-500/30 hover:from-amber-500/40 hover:to-rose-500/45 active:scale-95 border border-amber-300/40 text-white shadow-lg transition">
-                    <span class="text-2xl sm:text-3xl mb-1.5">🎁</span>
-                    <span class="font-bold text-sm sm:text-base text-amber-100">Mở hộp quà</span>
+                <button onclick="selectMode('box')" class="w-full p-3.5 rounded-2xl bg-rose-600/35 hover:bg-rose-600/55 border border-rose-300/35 flex items-center gap-3 transition">
+                    <span class="text-2xl">🎁</span>
+                    <span class="font-bold text-sm sm:text-base">Mở hộp quà</span>
+                </button>
+                <button onclick="selectMode('blockblast')" class="w-full p-3.5 rounded-2xl bg-emerald-600/35 hover:bg-emerald-600/55 border border-emerald-300/35 flex items-center gap-3 transition">
+                    <span class="text-2xl">🧩</span>
+                    <span class="font-bold text-sm sm:text-base">Xếp hình Block Blast</span>
                 </button>
             </div>
+
+            <button onclick="openSettingsModal()" class="w-full py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-xs sm:text-sm font-semibold transition">
+                ⚙️ Cài đặt (Âm thanh, FPS, Đổi tên)
+            </button>
         </div>
     </div>
 
-    <!-- Mặt trăng khuyết -->
-    <div class="fixed top-4 right-4 sm:top-8 sm:right-12 pointer-events-none z-10">
-        <svg class="w-16 h-16 sm:w-24 sm:h-24 moon-animate" viewBox="0 0 100 100" fill="none">
-            <path d="M68 15C45.9086 15 28 32.9086 28 55C28 77.0914 45.9086 95 68 95C73.2 95 78.16 94 82.7 92.2C66.8 89.2 54.8 75.2 54.8 58.3C54.8 39.2 70.3 23.7 89.4 23.7C90.6 23.7 91.8 23.8 93 23.9C86.2 18.3 77.5 15 68 15Z" fill="#FEF08A"/>
-            <path d="M22 26L23.8 31.2L29 33L23.8 34.8L22 40L20.2 34.8L15 33L20.2 31.2L22 26Z" fill="#FDE047"/>
-            <circle cx="80" cy="48" r="2" fill="#FEF9C3"/>
-        </svg>
-    </div>
-
-    <!-- Mây 1 -->
-    <div class="fixed top-12 left-2 sm:top-16 sm:left-12 opacity-30 pointer-events-none z-10 cloud-float-1">
-        <svg class="w-24 h-12 sm:w-32 sm:h-16" viewBox="0 0 120 60" fill="none">
-            <path d="M25 50H95C106.046 50 115 41.0457 115 30C115 19.6 107.06 11.06 96.9 10.1C93.2 4.05 86.56 0 79 0C69.4 0 61.3 6.45 58.8 15.25C56.1 13.8 53 13 49.7 13C39.6 13 31.3 20.7 30.3 30.55C28.6 30.2 26.8 30 25 30C13.9543 30 5 38.9543 5 50H25Z" fill="#C7D2FE"/>
-        </svg>
-    </div>
-
-    <!-- Mây 2 -->
-    <div class="fixed bottom-8 right-2 sm:bottom-12 sm:right-16 opacity-25 pointer-events-none z-10 cloud-float-2">
-        <svg class="w-28 h-14 sm:w-36 sm:h-18" viewBox="0 0 120 60" fill="none">
-            <path d="M25 50H95C106.046 50 115 41.0457 115 30C115 19.6 107.06 11.06 96.9 10.1C93.2 4.05 86.56 0 79 0C69.4 0 61.3 6.45 58.8 15.25C56.1 13.8 53 13 49.7 13C39.6 13 31.3 20.7 30.3 30.55C28.6 30.2 26.8 30 25 30C13.9543 30 5 38.9543 5 50H25Z" fill="#DDD6FE"/>
-        </svg>
-    </div>
-
-    <!-- Nội dung chính -->
-    <main class="relative z-20 flex flex-col items-center justify-center w-full max-w-lg my-auto">
-        <header class="text-center mb-3 sm:mb-4 px-2">
-            <div class="flex items-center justify-center gap-2 mb-1">
-                <p id="modeBadgeText" class="text-[10px] sm:text-xs uppercase tracking-[0.18em] text-pink-200/85 font-semibold">
-                    9 hộp quà bí mật • Chỉ 1 lượt mở
-                </p>
-                <button id="switchModeBtn" type="button"
-                        class="hidden px-2.5 py-0.5 rounded-full bg-white/15 hover:bg-white/25 border border-white/25 text-[10px] sm:text-[11px] font-semibold text-amber-100 transition">
-                    Đổi chế độ ⇄
+    <!-- Modal 4: Cài đặt (Âm lượng, FPS, Đổi tên) -->
+    <div id="settingsModal" class="hidden opacity-0 fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 transition-opacity duration-300">
+        <div class="glass-panel max-w-md w-full rounded-3xl p-5 sm:p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg sm:text-xl font-extrabold flex items-center gap-2">
+                    <span>⚙️</span>
+                    <span>Cài đặt</span>
+                </h2>
+                <button onclick="closeSettingsModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-sm font-bold flex items-center justify-center transition">
+                    ✕
                 </button>
             </div>
-            <h1 id="mainHeading" class="font-script text-2xl sm:text-4xl text-amber-100 drop-shadow">
-                Chúc ngủ ngon ✨
-            </h1>
-            <p id="statusSubtitle" class="text-[11px] sm:text-xs text-indigo-200/90 mt-1 transition-colors duration-300">
-                Chọn 1 trong 2 chế độ để nhận lời chúc ngủ ngon bí mật nhé!
-            </p>
-        </header>
 
-        <!-- CHẾ ĐỘ 1: Vòng quay 20 ô lời chúc -->
-        <section id="wheelSection" class="hidden flex-col items-center justify-center w-full">
-            <div class="relative flex items-center justify-center my-1">
-                <!-- Kim chỉ kết quả phía trên đỉnh vòng quay -->
-                <div class="absolute -top-3.5 z-30 pointer-events-none drop-shadow-[0_4px_8px_rgba(0,0,0,0.6)]">
-                    <svg width="34" height="38" viewBox="0 0 34 38" fill="none">
-                        <path d="M17 36L3 8C1.5 5 3.7 1.5 7 1.5H27C30.3 1.5 32.5 5 31 8L17 36Z" fill="#FDE047" stroke="#9D174D" stroke-width="2.5"/>
-                        <circle cx="17" cy="10" r="4" fill="#F43F5E"/>
-                    </svg>
-                </div>
-
-                <!-- Khung viền phát sáng xung quanh vòng quay -->
-                <div class="relative p-2 rounded-full bg-gradient-to-tr from-pink-500/40 via-amber-300/40 to-indigo-400/40 shadow-[0_0_35px_rgba(244,114,182,0.35)] border border-white/25">
-                    <canvas id="wheelCanvas" class="rounded-full block cursor-pointer"></canvas>
-
-                    <!-- Nút QUAY ở tâm vòng quay -->
-                    <button id="spinWheelBtn" type="button"
-                            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-rose-500 via-pink-600 to-purple-700 hover:from-rose-400 hover:to-pink-500 active:scale-95 border-4 border-amber-200 text-white font-bold text-xs sm:text-sm tracking-wider shadow-[0_0_20px_rgba(0,0,0,0.6)] flex flex-col items-center justify-center transition z-20">
-                        <span>QUAY</span>
-                        <span class="text-[9px] font-normal text-amber-100/90">1 lượt</span>
+            <!-- Đổi tên hiển thị -->
+            <div class="mb-4 p-3.5 rounded-2xl bg-white/5 border border-white/10">
+                <label for="settingsNameInput" class="block text-xs font-bold uppercase tracking-wider text-amber-200 mb-2">
+                    ✏️ Tên hiển thị
+                </label>
+                <div class="flex gap-2">
+                    <input id="settingsNameInput" type="text" maxlength="30" placeholder="Nhập tên mới..." class="flex-1 px-3 py-2 rounded-xl bg-slate-900/90 border border-white/20 text-sm text-white focus:outline-none focus:border-amber-300">
+                    <button onclick="saveNameFromSettings()" class="px-3.5 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs sm:text-sm transition">
+                        Lưu tên
                     </button>
                 </div>
+                <p id="settingsNameFeedback" class="hidden text-xs text-emerald-300 mt-1.5"></p>
             </div>
 
-            <!-- Thẻ hiển thị lời chúc sau khi vòng quay dừng -->
-            <div id="wheelResultCard" class="hidden mt-3 w-full max-w-xs sm:max-w-sm rounded-2xl bg-gradient-to-br from-rose-50 via-amber-50 to-pink-100 border-2 border-pink-200 p-3.5 sm:p-4 text-center shadow-2xl">
-                <div id="wheelResultBadge" class="text-[11px] font-bold uppercase tracking-wider text-pink-500 mb-1">
-                    🌙 Lời chúc dành cho bạn
+            <!-- Âm lượng -->
+            <div class="mb-4 p-3.5 rounded-2xl bg-white/5 border border-white/10">
+                <div class="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-indigo-200 mb-2">
+                    <span>🔊 Âm lượng nhạc</span>
+                    <span id="volumeValueLabel" class="text-amber-300">75%</span>
                 </div>
-                <p id="wheelResultText" class="font-script text-xl sm:text-2xl font-bold leading-snug warm-text-glow"></p>
+                <input id="volumeSlider" type="range" min="0" max="100" value="75" oninput="handleVolumeSliderChange(this.value)" class="w-full accent-amber-400 cursor-pointer">
             </div>
-        </section>
 
-        <!-- CHẾ ĐỘ 2: Lưới đúng 9 hộp quà gọn gàng gần nhau trong 1 trang -->
-        <section id="boxSection" class="w-full flex flex-col items-center">
-            <div id="giftGrid" class="grid grid-cols-3 gap-x-2 gap-y-2.5 sm:gap-x-3 sm:gap-y-3 w-full max-w-[330px] sm:max-w-[400px] place-items-center"></div>
-        </section>
-
-        <!-- Thanh trạng thái lượt chơi -->
-        <div class="mt-4 sm:mt-5 px-3.5 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-center shadow-lg">
-            <p id="turnFooterText" class="text-[11px] sm:text-xs font-semibold text-amber-100/95">
-                🎁 Bạn đang có <span class="text-pink-300 font-bold">1 lượt nhận lời chúc</span> — hãy chọn chế độ nhé!
-            </p>
+            <!-- Giới hạn FPS -->
+            <div class="p-3.5 rounded-2xl bg-white/5 border border-white/10">
+                <div class="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-indigo-200 mb-2">
+                    <span>⚡ Giới hạn FPS (Chống nóng máy)</span>
+                    <span id="fpsValueLabel" class="text-emerald-300">60 FPS</span>
+                </div>
+                <div class="grid grid-cols-4 gap-2">
+                    <button type="button" data-fps-btn="30" onclick="setTargetFps(30)" class="fps-option py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-xs font-bold transition">30</button>
+                    <button type="button" data-fps-btn="60" onclick="setTargetFps(60)" class="fps-option py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-xs font-bold transition">60</button>
+                    <button type="button" data-fps-btn="90" onclick="setTargetFps(90)" class="fps-option py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-xs font-bold transition">90</button>
+                    <button type="button" data-fps-btn="120" onclick="setTargetFps(120)" class="fps-option py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-xs font-bold transition">120</button>
+                </div>
+            </div>
         </div>
-    </main>
+    </div>
+
+    <!-- Modal 5: Bộ sưu tập lời chúc -->
+    <div id="collectionModal" class="hidden opacity-0 fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 transition-opacity duration-300">
+        <div class="glass-panel max-w-lg w-full rounded-3xl p-5 sm:p-6 max-h-[85vh] flex flex-col">
+            <div class="flex items-center justify-between mb-2">
+                <h2 class="text-lg sm:text-xl font-extrabold flex items-center gap-2">
+                    <span>📚</span>
+                    <span>Bộ sưu tập lời chúc</span>
+                </h2>
+                <button onclick="closeCollectionModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-sm font-bold flex items-center justify-center transition">
+                    ✕
+                </button>
+            </div>
+            <p id="collectionProgressText" class="text-xs text-amber-200/90 mb-3">
+                Đã sưu tầm 0 / 4.000 lời chúc (1.000 câu mỗi buổi)
+            </p>
+
+            <div class="flex flex-wrap gap-1.5 mb-3">
+                <button onclick="setCollectionFilter('all')" data-filter="all" class="col-filter-btn px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-400 text-slate-950 transition">Tất cả</button>
+                <button onclick="setCollectionFilter('morning')" data-filter="morning" class="col-filter-btn px-2.5 py-1 rounded-full text-xs font-semibold bg-white/10 text-white hover:bg-white/20 transition">🌅 Sáng</button>
+                <button onclick="setCollectionFilter('noon')" data-filter="noon" class="col-filter-btn px-2.5 py-1 rounded-full text-xs font-semibold bg-white/10 text-white hover:bg-white/20 transition">🌤️ Trưa</button>
+                <button onclick="setCollectionFilter('afternoon')" data-filter="afternoon" class="col-filter-btn px-2.5 py-1 rounded-full text-xs font-semibold bg-white/10 text-white hover:bg-white/20 transition">🌇 Chiều</button>
+                <button onclick="setCollectionFilter('night')" data-filter="night" class="col-filter-btn px-2.5 py-1 rounded-full text-xs font-semibold bg-white/10 text-white hover:bg-white/20 transition">🌙 Tối</button>
+            </div>
+
+            <div id="collectionListContainer" class="custom-scroll overflow-y-auto space-y-2.5 pr-1 flex-1"></div>
+        </div>
+    </div>
+
+    <!-- Toast thông báo lời chúc nổi bật (dùng cho Block Blast / Hộp quà) -->
+    <div id="wishToast" class="hidden fixed bottom-5 left-1/2 -translate-x-1/2 z-50 max-w-md w-[92%] glass-panel rounded-2xl p-4 border border-amber-300/40">
+        <div class="flex items-start justify-between gap-3">
+            <div>
+                <div id="wishToastTitle" class="text-xs font-bold text-amber-300 mb-0.5"></div>
+                <p id="wishToastBody" class="text-xs sm:text-sm text-white leading-snug"></p>
+            </div>
+            <button onclick="hideWishToast()" class="text-xs px-2 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-white font-semibold shrink-0">
+                Đóng
+            </button>
+        </div>
+    </div>
 
     <script>
+        const NAME_STORAGE_KEY = 'wish_recipient_name_v1';
         let recipientName = 'bạn';
-        let currentMode = null; // 'wheel' | 'box'
+        let hasSavedRecipientName = false;
+        let currentMode = null;
 
-        // Kho 100 lời chúc ngủ ngon ngọt ngào, ấm áp (dùng {name} để tự động chèn tên)
-        const WISH_POOL = [
-            { text: 'Chúc {name} ngủ ngoan ngoan hong mơ', emoji: '🌙' },
-            { text: 'Đặt lưng xuống là chìm vào giấc ngủ êm ái nha {name}', emoji: '🧸' },
-            { text: 'Hôm nay {name} vất vả rồi, giờ nghỉ ngơi thật trọn vẹn nhé', emoji: '💤' },
-            { text: 'Chúc {name} có một đêm thật yên bình và ấm áp', emoji: '✨' },
-            { text: 'Gác lại hết âu lo, {name} ngủ một giấc thật sâu tới sáng nha', emoji: '☁️' },
-            { text: 'Mền êm gối ấm, chúc {name} ngủ ngon thiệt ngon', emoji: '🛌' },
-            { text: 'Tắt đèn thôi nào, chúc {name} nạp đầy năng lượng cho ngày mai', emoji: '🔋' },
-            { text: 'Đêm nay sao sáng lắm, chúc {name} ngủ thật say nhé', emoji: '🌟' },
-            { text: 'Chúc {name} một giấc ngủ trọn vẹn, sáng thức dậy thật tươi', emoji: '💖' },
-            { text: 'Màn đêm buông xuống rồi, chúc {name} an giấc nồng say nhé', emoji: '🌌' },
-            { text: 'Gửi ngàn ngôi sao nhỏ tới canh giấc ngủ cho {name} đêm nay', emoji: '🌠' },
-            { text: 'Chúc {name} nhắm mắt lại là thấy toàn điều dịu dàng nhất', emoji: '🌸' },
-            { text: 'Đừng thức khuya nữa nha {name}, ngủ sớm cho xinh tươi nè', emoji: '🌷' },
-            { text: 'Chúc {name} đêm nay ngủ không mộng mị, sáng dậy tràn đầy niềm vui', emoji: '☀️' },
-            { text: 'Gió đêm mát lành, chúc {name} cuộn chăn ngủ thật ấm áp', emoji: '🧣' },
-            { text: 'Mọi mệt mỏi hôm nay cứ để đêm nay xoa dịu giúp {name} nhé', emoji: '🍃' },
-            { text: 'Chúc {name} có một giấc ngủ ngọt như kẹo bông gòn', emoji: '🍭' },
-            { text: 'Ánh trăng dịu dàng đang ru {name} vào giấc mơ đẹp đó', emoji: '🌛' },
-            { text: 'Ngủ ngon nha {name}, ngày mai nhất định sẽ là một ngày tuyệt vời', emoji: '🌈' },
-            { text: 'Chúc {name} thả lỏng đôi vai, thở nhẹ nhàng và ngủ thật sâu', emoji: '🕊️' },
-            { text: 'Đêm khuya thanh vắng, chúc tâm hồn {name} luôn bình yên', emoji: '🕯️' },
-            { text: 'Chúc {name} ngủ một mạch tới sáng không bị giật mình nhé', emoji: '😴' },
-            { text: 'Gửi {name} một cái ôm thật ấm áp trước giờ đi ngủ nè', emoji: '🤗' },
-            { text: 'Chúc {name} đêm nay mơ thấy toàn những nơi mình thích đến', emoji: '✈️' },
-            { text: 'Hết giờ chạy deadline rồi {name} ơi, lên giường ngủ ngoan thôi', emoji: '⏰' },
-            { text: 'Chúc {name} ngủ say như gấu ngủ đông nhưng sáng dậy đúng giờ nha', emoji: '🐻' },
-            { text: 'Bầu trời đêm nay thật đẹp, chúc {name} ngủ ngon nhé', emoji: '🪐' },
-            { text: 'Chúc {name} tạm biệt mọi muộn phiền để đón giấc ngủ an lành', emoji: '🌊' },
-            { text: 'Đêm nay chúc {name} ngủ thật ngon, mai mỉm cười thật rạng rỡ', emoji: '😊' },
-            { text: 'Nhắm mắt lại và đếm cừu cùng ánh sao nhé {name}, ngủ ngon!', emoji: '🐑' },
-            { text: 'Chúc {name} một đêm dịu êm, không suy tư, không trằn trọc', emoji: '🪷' },
-            { text: 'Gối mềm đã sẵn sàng, chúc {name} ngủ một giấc thật đã', emoji: '🛏️' },
-            { text: 'Chúc {name} luôn được che chở bởi những giấc mơ ngọt ngào nhất', emoji: '🎀' },
-            { text: 'Đêm nay trăng tròn tỏa sáng, chúc {name} an nhiên chìm vào giấc ngủ', emoji: '🌕' },
-            { text: 'Cảm ơn {name} vì hôm nay đã cố gắng, giờ ngủ thật ngon nha', emoji: '🏅' },
-            { text: 'Chúc {name} ngủ ngon, sáng mai thức dậy thấy lòng nhẹ tênh', emoji: '🎈' },
-            { text: 'Đừng lướt điện thoại nữa nha {name}, nhắm mắt ngủ ngoan nào', emoji: '📵' },
-            { text: 'Chúc {name} một đêm bình yên như mặt hồ tĩnh lặng', emoji: '🏞️' },
-            { text: 'Gửi tới {name} lời chúc ngủ ngon ấm áp nhất vũ trụ này', emoji: '🚀' },
-            { text: 'Chúc {name} ngủ thật say để mai tiếp tục tỏa sáng rực rỡ nhé', emoji: '💎' },
-            { text: 'Đêm xuống rồi, chúc {name} cuộn tròn trong chăn ấm và mỉm cười', emoji: '🥐' },
-            { text: 'Chúc {name} có những giây phút nghỉ ngơi thật sự chất lượng đêm nay', emoji: '🍵' },
-            { text: 'Mọi chuyện ngày mai tính tiếp, giờ thì {name} ngủ ngon đã nhé', emoji: '📝' },
-            { text: 'Chúc {name} ngủ êm đềm như tiếng nhạc ru dịu dàng đêm khuya', emoji: '🎶' },
-            { text: 'Chúc {name} đêm nay không lạnh, không muộn phiền, chỉ có bình yên', emoji: '🔥' },
-            { text: 'Ngủ ngoan nha {name}, chúc bạn luôn vui vẻ và hạnh phúc', emoji: '🍀' },
-            { text: 'Chúc {name} chìm vào giấc ngủ nhanh như một cơn gió nhẹ', emoji: '🍃' },
-            { text: 'Đêm nay sao trời lấp lánh chúc {name} ngủ thật ngon giấc', emoji: '✨' },
-            { text: 'Chúc {name} sáng mai thức dậy với thật nhiều năng lượng tích cực', emoji: '⚡' },
-            { text: 'Đắp chăn kín cổ kẻo lạnh nha {name}, chúc ngủ ngon!', emoji: '🧣' },
-            { text: 'Chúc {name} một đêm an lành, mọi điều tốt đẹp đang chờ phía trước', emoji: '🌻' },
-            { text: 'Giờ là lúc dành trọn thời gian cho bản thân nghỉ ngơi nhé {name}', emoji: '🧘' },
-            { text: 'Chúc {name} ngủ ngon, mơ đẹp và luôn giữ nụ cười trên môi', emoji: '😄' },
-            { text: 'Màn đêm dịu dàng ôm lấy {name}, chúc bạn ngủ thật say', emoji: '🌙' },
-            { text: 'Chúc {name} đêm nay ngủ ngon không mộng mị, tinh thần sảng khoái', emoji: '🌿' },
-            { text: 'Gửi {name} một chút bình yên của đêm khuya để dễ ngủ hơn nè', emoji: '🌌' },
-            { text: 'Chúc {name} giấc ngủ sâu tựa đại dương êm ả đêm trăng', emoji: '🐬' },
-            { text: 'Hôm nay thế là đủ rồi {name} ơi, ngủ một giấc thật ngon nhé', emoji: '🌙' },
-            { text: 'Chúc {name} luôn bình an trong từng hơi thở và từng giấc ngủ', emoji: '🤍' },
-            { text: 'Ngủ sớm giữ gìn sức khỏe nha {name}, chúc bạn ngủ ngon!', emoji: '🍎' },
-            { text: 'Chúc {name} đêm nay được dạo chơi trong khu vườn cổ tích dịu êm', emoji: '🧚' },
-            { text: 'Tắt hết ánh đèn chói chang, chúc {name} an giấc trong bình yên', emoji: '🌃' },
-            { text: 'Chúc {name} ngủ ngon như chú mèo con cuộn tròn bên lò sưởi', emoji: '🐱' },
-            { text: 'Ngày mai mặt trời sẽ lại mọc, còn đêm nay {name} cứ ngủ thật ngon', emoji: '🌅' },
-            { text: 'Chúc {name} có một giấc ngủ thật sâu để xua tan hết mệt nhoài', emoji: '💆' },
-            { text: 'Đêm nay chúc {name} lòng an yên, mắt khép nhẹ và ngủ say', emoji: '🌸' },
-            { text: 'Gửi ngàn lời chúc tốt đẹp nhất tới giấc ngủ đêm nay của {name}', emoji: '💌' },
-            { text: 'Chúc {name} ngủ ngon, sáng dậy đón nhận thật nhiều may mắn nhé', emoji: '🧲' },
-            { text: 'Bầu trời đêm đã lên đèn, chúc {name} vào giấc thật êm ái', emoji: '🏮' },
-            { text: 'Chúc {name} không còn vướng bận điều gì, ngủ thật ngon nha', emoji: '🎈' },
-            { text: 'Một ngày dài khép lại rồi, chúc {name} ngủ thật ngon giấc nhé', emoji: '📖' },
-            { text: 'Chúc {name} đêm nay ngủ say sưa, sáng dậy tràn ngập tiếng cười', emoji: '🎵' },
-            { text: 'Gió hát ru ngoài hiên, chúc {name} ngủ một giấc thật bình yên', emoji: '🍃' },
-            { text: 'Chúc {name} luôn mạnh khỏe, vui tươi và đêm nay ngủ thật ngon', emoji: '💪' },
-            { text: 'Đặt điện thoại sang một bên và nhắm mắt lại nào {name}, ngủ ngon!', emoji: '🛌' },
-            { text: 'Chúc {name} có một đêm dịu dàng như những đám mây bồng bềnh', emoji: '☁️' },
-            { text: 'Chúc {name} ngủ ngon, mọi ước muốn tốt đẹp sẽ sớm thành hiện thực', emoji: '🌠' },
-            { text: 'Đêm nay thật yên tĩnh, rất hợp để {name} ngủ một giấc thật dài', emoji: '🤫' },
-            { text: 'Chúc {name} ngủ thật ngon, tâm trí thư thái và nhẹ nhõm', emoji: '🕊️' },
-            { text: 'Gửi tới {name} ánh trăng vàng dịu ngọt để ru giấc ngủ đêm nay', emoji: '🌙' },
-            { text: 'Chúc {name} ngủ ngoan, sáng mai thức dậy thấy yêu đời hơn nữa', emoji: '🌺' },
-            { text: 'Mọi áp lực xin gửi lại ngoài cửa phòng, chúc {name} ngủ ngon', emoji: '🚪' },
-            { text: 'Chúc {name} đêm nay ngủ ngon lành, không còn chút mệt mỏi nào', emoji: '✨' },
-            { text: 'Chúc {name} luôn được bao bọc bởi sự ấm áp và bình yên mỗi đêm', emoji: '🏡' },
-            { text: 'Ngủ ngon nha {name}, chúc bạn luôn vững vàng và rạng rỡ', emoji: '🌟' },
-            { text: 'Chúc {name} một đêm an giấc, sáng mai đón bình minh rực rỡ', emoji: '🌤️' },
-            { text: 'Thả lỏng cơ thể, hít thở thật sâu và ngủ ngon nhé {name}', emoji: '🌬️' },
-            { text: 'Chúc {name} đêm nay ngủ thật sâu, nạp đầy pin 100% nhé', emoji: '💯' },
-            { text: 'Đêm khuya rồi, chúc {name} bình yên trong từng khoảnh khắc nghỉ ngơi', emoji: '🌙' },
-            { text: 'Chúc {name} ngủ ngon như em bé, sáng dậy tươi tắn như hoa', emoji: '🌼' },
-            { text: 'Gửi {name} một bầu trời sao lấp lánh cho giấc ngủ thêm phần kỳ diệu', emoji: '🌌' },
-            { text: 'Chúc {name} đêm nay ngủ say giấc, mọi chuyện tốt lành sẽ tự tìm đến', emoji: '🍀' },
-            { text: 'Hết giờ nghĩ ngợi rồi {name} ơi, chúc bạn ngủ thật ngon nhé', emoji: '💤' },
-            { text: 'Chúc {name} có một đêm thư giãn tuyệt đối và giấc ngủ thật sâu', emoji: '🛁' },
-            { text: 'Ngủ ngon nhé {name}, mong mọi điều dịu dàng nhất luôn ở bên bạn', emoji: '💝' },
-            { text: 'Chúc {name} đêm nay ngủ ngon, sáng mai bước ra cửa là gặp niềm vui', emoji: '🎁' },
-            { text: 'Ánh sao đêm nay sáng nhất là để chúc {name} ngủ ngon đó', emoji: '⭐' },
-            { text: 'Chúc {name} khép mi nhẹ nhàng, an nhiên tận hưởng giấc ngủ đêm nay', emoji: '🌙' },
-            { text: 'Cả thế giới đang đi ngủ rồi, chúc {name} cũng ngủ thật ngon nhé', emoji: '🌍' },
-            { text: 'Chúc {name} một đêm ngọt ngào, bình an và trọn vẹn yêu thương', emoji: '💖' }
-        ];
-
-        function formatWishText(template) {
-            return template.replace(/\{name\}/g, recipientName);
-        }
-
-        // Bảng màu ruy băng & thân hộp
-        const BOX_THEMES = [
-            { lidFrom: '#FB7185', lidTo: '#E11D48', boxFrom: '#F43F5E', boxTo: '#BE123C', ribbon: '#FDE047', ribbonDark: '#FACC15' },
-            { lidFrom: '#F472B6', lidTo: '#DB2777', boxFrom: '#EC4899', boxTo: '#9D174D', ribbon: '#FEF08A', ribbonDark: '#FDE047' },
-            { lidFrom: '#A78BFA', lidTo: '#7C3AED', boxFrom: '#8B5CF6', boxTo: '#5B21B6', ribbon: '#FDE68A', ribbonDark: '#FCD34D' },
-            { lidFrom: '#38BDF8', lidTo: '#0284C7', boxFrom: '#0EA5E9', boxTo: '#0369A1', ribbon: '#FEF08A', ribbonDark: '#FDE047' },
-            { lidFrom: '#FBBF24', lidTo: '#D97706', boxFrom: '#F59E0B', boxTo: '#B45309', ribbon: '#FFFBEB', ribbonDark: '#FEF3C7' }
-        ];
-
-        // Màu các ô trên vòng quay (20 ô xen kẽ hài hòa)
-        const WHEEL_COLORS = [
-            '#F43F5E', '#8B5CF6', '#EC4899', '#0EA5E9', '#F59E0B',
-            '#E11D48', '#7C3AED', '#DB2777', '#0284C7', '#D97706'
-        ];
-
-        // Xáo trộn mảng ngẫu nhiên bằng thuật toán Fisher–Yates
-        function shuffleArray(arr) {
-            const copy = [...arr];
-            for (let i = copy.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [copy[i], copy[j]] = [copy[j], copy[i]];
-            }
-            return copy;
-        }
-
-        // Lấy ngẫu nhiên N lời chúc không trùng lặp từ kho 100 lời chúc
-        function getRandomWishes(count) {
-            return shuffleArray(WISH_POOL).slice(0, count);
-        }
-
-        // Tạo hiệu ứng bầu trời đầy sao lấp lánh
-        function createStarfield() {
-            const starfield = document.getElementById('starfield');
-            if (!starfield) return;
-            starfield.innerHTML = '';
-            const starCount = window.innerWidth < 640 ? 50 : 85;
-
-            for (let i = 0; i < starCount; i++) {
-                const star = document.createElement('div');
-                star.className = 'star';
-                const size = Math.random() * 2.5 + 1;
-                star.style.width = `${size}px`;
-                star.style.height = `${size}px`;
-                star.style.left = `${Math.random() * 100}%`;
-                star.style.top = `${Math.random() * 100}%`;
-                star.style.setProperty('--duration', `${Math.random() * 3 + 2}s`);
-                star.style.setProperty('--delay', `${Math.random() * 4}s`);
-                starfield.appendChild(star);
-            }
-        }
-
-        // Hệ thống hiệu ứng pháo giấy (Confetti)
-        const canvas = document.getElementById('confetti-canvas');
-        const ctx = canvas.getContext('2d');
-        let particles = [];
-        let animationFrameId = null;
-
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
-
-        const colors = ['#F43F5E', '#FB7185', '#FDE047', '#FBBF24', '#C084FC', '#F9A8D4', '#67E8F9'];
-        const shapes = ['circle', 'rect', 'heart', 'star'];
-
-        class Particle {
-            constructor(x, y) {
-                this.x = x;
-                this.y = y;
-                const angle = -Math.PI / 2 + (Math.random() - 0.5) * 1.6;
-                const speed = Math.random() * 7.5 + 4;
-                this.vx = Math.cos(angle) * speed;
-                this.vy = Math.sin(angle) * speed - 1.5;
-                this.gravity = 0.22;
-                this.drag = 0.985;
-                this.size = Math.random() * 7 + 5;
-                this.color = colors[Math.floor(Math.random() * colors.length)];
-                this.shape = shapes[Math.floor(Math.random() * shapes.length)];
-                this.rotation = Math.random() * Math.PI * 2;
-                this.rotationSpeed = (Math.random() - 0.5) * 0.15;
-                this.alpha = 1;
-                this.decay = Math.random() * 0.01 + 0.007;
-            }
-
-            update() {
-                this.vx *= this.drag;
-                this.vy *= this.drag;
-                this.vy += this.gravity;
-                this.x += this.vx;
-                this.y += this.vy;
-                this.rotation += this.rotationSpeed;
-                this.alpha -= this.decay;
-            }
-
-            draw(ctx) {
-                if (this.alpha <= 0) return;
-                ctx.save();
-                ctx.globalAlpha = Math.max(0, this.alpha);
-                ctx.translate(this.x, this.y);
-                ctx.rotate(this.rotation);
-                ctx.fillStyle = this.color;
-
-                if (this.shape === 'circle') {
-                    ctx.beginPath();
-                    ctx.arc(0, 0, this.size * 0.45, 0, Math.PI * 2);
-                    ctx.fill();
-                } else if (this.shape === 'rect') {
-                    ctx.fillRect(-this.size * 0.5, -this.size * 0.3, this.size, this.size * 0.6);
-                } else if (this.shape === 'heart') {
-                    const s = this.size * 0.55;
-                    ctx.beginPath();
-                    ctx.moveTo(0, s * 0.3);
-                    ctx.bezierCurveTo(-s, -s * 0.5, -s * 0.5, -s * 1.2, 0, -s * 0.5);
-                    ctx.bezierCurveTo(s * 0.5, -s * 1.2, s, -s * 0.5, 0, s * 0.3);
-                    ctx.fill();
-                } else if (this.shape === 'star') {
-                    this.drawStar(ctx, 0, 0, 5, this.size * 0.6, this.size * 0.25);
+        function loadSavedRecipientName() {
+            try {
+                const saved = localStorage.getItem(NAME_STORAGE_KEY);
+                if (saved && saved.trim()) {
+                    recipientName = saved.trim();
+                    hasSavedRecipientName = true;
                 }
-
-                ctx.restore();
-            }
-
-            drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius) {
-                let rot = (Math.PI / 2) * 3;
-                const step = Math.PI / spikes;
-                ctx.beginPath();
-                ctx.moveTo(cx, cy - outerRadius);
-                for (let i = 0; i < spikes; i++) {
-                    ctx.lineTo(cx + Math.cos(rot) * outerRadius, cy + Math.sin(rot) * outerRadius);
-                    rot += step;
-                    ctx.lineTo(cx + Math.cos(rot) * innerRadius, cy + Math.sin(rot) * innerRadius);
-                    rot += step;
-                }
-                ctx.lineTo(cx, cy - outerRadius);
-                ctx.closePath();
-                ctx.fill();
-            }
+            } catch (_) {}
         }
 
-        function animateConfetti() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            particles = particles.filter((p) => p.alpha > 0);
-            for (const p of particles) {
-                p.update();
-                p.draw(ctx);
-            }
-            if (particles.length > 0) {
-                animationFrameId = requestAnimationFrame(animateConfetti);
-            } else {
-                animationFrameId = null;
-            }
-        }
-
-        function launchCelebration(x, y, count = 45) {
-            for (let i = 0; i < count; i++) {
-                particles.push(new Particle(x, y));
-            }
-            if (!animationFrameId) {
-                animateConfetti();
-            }
-        }
-
-        // Hệ thống phát file nhạc MP3 ngẫu nhiên từ danh sách 10 bài
-        const MUSIC_PLAYLIST = [
-            { title: 'Bài 1', src: '1.mp3' },
-            { title: 'Bài 2', src: '2.mp3' },
-            { title: 'Bài 3', src: '3.mp3' },
-            { title: 'Bài 4', src: '4.mp3' },
-            { title: 'Bài 5', src: '5.mp3' },
-            { title: 'Bài 6', src: '6.mp3' },
-            { title: 'Bài 7', src: '7.mp3' },
-            { title: 'Bài 8', src: '8.mp3' },
-            { title: 'Bài 9', src: '9.mp3' },
-            { title: 'Bài 10', src: '10.mp3' }
-        ];
-
-        const lullabyAudio = document.getElementById('lullabyAudio');
-        let currentTrackIndex = Math.floor(Math.random() * MUSIC_PLAYLIST.length);
-        let isMusicPlaying = false;
-        let userMutedMusic = false;
-
-        function selectRandomTrack(excludeIndex = -1) {
-            if (MUSIC_PLAYLIST.length === 0) return;
-            let nextIndex = Math.floor(Math.random() * MUSIC_PLAYLIST.length);
-            if (MUSIC_PLAYLIST.length > 1 && nextIndex === excludeIndex) {
-                nextIndex = (nextIndex + 1 + Math.floor(Math.random() * (MUSIC_PLAYLIST.length - 1))) % MUSIC_PLAYLIST.length;
-            }
-            currentTrackIndex = nextIndex;
-            if (lullabyAudio) {
-                lullabyAudio.src = MUSIC_PLAYLIST[currentTrackIndex].src;
-                lullabyAudio.load();
-            }
-        }
-
-        // Chọn ngẫu nhiên 1 bài ngay khi vào web
-        selectRandomTrack();
-
-        // Tự động chuyển sang bài ngẫu nhiên khác khi bài hiện tại phát hết
-        if (lullabyAudio) {
-            lullabyAudio.addEventListener('ended', async () => {
-                selectRandomTrack(currentTrackIndex);
-                updateMusicUI();
-                if (!userMutedMusic) {
-                    await startLullabyMusic();
-                }
-            });
-        }
-
-        function updateMusicUI() {
-            const btn = document.getElementById('musicToggleBtn');
-            const label = document.getElementById('musicStatusLabel');
-            if (!btn || !label) return;
-
-            const trackTitle = MUSIC_PLAYLIST[currentTrackIndex]?.title || '';
-            if (isMusicPlaying) {
-                btn.classList.add('music-playing', 'border-amber-300/50', 'bg-pink-500/25');
-                label.textContent = `Nhạc (${trackTitle}): Bật`;
-            } else {
-                btn.classList.remove('music-playing', 'border-amber-300/50', 'bg-pink-500/25');
-                label.textContent = `Nhạc (${trackTitle}): Tắt`;
-            }
-        }
-
-        function hideMusicIntroModal() {
-            const modal = document.getElementById('musicIntroModal');
-            if (!modal) return;
-            modal.classList.add('opacity-0', 'pointer-events-none');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-            }, 300);
+        function saveRecipientName(name) {
+            try {
+                localStorage.setItem(NAME_STORAGE_KEY, name.trim());
+                hasSavedRecipientName = true;
+            } catch (_) {}
         }
 
         function showNameInputModal() {
             const nameModal = document.getElementById('nameInputModal');
-            const nameInput = document.getElementById('recipientNameInput');
+            const input = document.getElementById('recipientNameInput');
             if (!nameModal) return;
+            if (input) {
+                input.value = hasSavedRecipientName ? recipientName : '';
+            }
             nameModal.classList.remove('hidden');
             requestAnimationFrame(() => {
                 nameModal.classList.remove('opacity-0');
-                if (nameInput) nameInput.focus();
+                if (input) input.focus();
             });
         }
 
@@ -763,40 +617,97 @@
             nameModal.classList.add('opacity-0', 'pointer-events-none');
             setTimeout(() => {
                 nameModal.classList.add('hidden');
+                nameModal.classList.remove('pointer-events-none');
             }, 300);
         }
 
-        function applyRecipientName(rawName) {
+        function handleNameSubmit(event) {
+            event.preventDefault();
+            const input = document.getElementById('recipientNameInput');
+            const val = input ? input.value.trim() : '';
+            if (!val) return;
+            applyRecipientName(val, true);
+            hideNameInputModal();
+            showModeSelectModal();
+        }
+
+        function applyRecipientName(rawName, persist = false) {
             const cleaned = rawName.trim();
             recipientName = cleaned || 'bạn';
+            if (persist && cleaned) {
+                saveRecipientName(cleaned);
+            }
 
-            document.title = `Chúc ${recipientName} ngủ ngon ✨`;
+            const settingsNameInput = document.getElementById('settingsNameInput');
+            if (settingsNameInput && hasSavedRecipientName) {
+                settingsNameInput.value = recipientName;
+            }
+
+            document.title = formatWishText(activePeriod.titleTemplate);
             const mainHeading = document.getElementById('mainHeading');
             if (mainHeading) {
-                mainHeading.textContent = `Chúc ${recipientName} ngủ ngon ✨`;
+                mainHeading.textContent = formatWishText(activePeriod.headingTemplate);
             }
 
             const modeGreetingSubtitle = document.getElementById('modeGreetingSubtitle');
             if (modeGreetingSubtitle) {
-                modeGreetingSubtitle.textContent = `Chào ${recipientName}, hãy chọn 1 trong 2 cách nhận lời chúc ngủ ngon đêm nay nhé!`;
+                modeGreetingSubtitle.textContent = formatWishText(activePeriod.subtitlePrompt);
             }
 
-            // Cập nhật toàn bộ lời chúc trên các hộp quà theo tên mới
             document.querySelectorAll('#giftGrid .wish-text').forEach((el) => {
                 const template = el.getAttribute('data-template') || '';
                 el.textContent = formatWishText(template);
             });
+        }
 
-            // Cập nhật lại text kết quả vòng quay nếu đang hiển thị
-            const wheelResultText = document.getElementById('wheelResultText');
-            if (wheelResultText && wheelResultText.dataset.template) {
-                wheelResultText.textContent = formatWishText(wheelResultText.dataset.template);
+        function saveNameFromSettings() {
+            const input = document.getElementById('settingsNameInput');
+            const feedback = document.getElementById('settingsNameFeedback');
+            if (!input) return;
+            const newName = input.value.trim();
+            if (!newName) return;
+            applyRecipientName(newName, true);
+            if (feedback) {
+                feedback.textContent = `Đã cập nhật tên thành "${recipientName}"!`;
+                feedback.classList.remove('hidden');
             }
+        }
+
+        function openSettingsModal() {
+            const modal = document.getElementById('settingsModal');
+            if (!modal) return;
+            const settingsNameInput = document.getElementById('settingsNameInput');
+            const settingsNameFeedback = document.getElementById('settingsNameFeedback');
+            if (settingsNameInput) {
+                settingsNameInput.value = hasSavedRecipientName ? recipientName : '';
+            }
+            if (settingsNameFeedback) {
+                settingsNameFeedback.classList.add('hidden');
+            }
+            updateSettingsModalUI();
+            modal.classList.remove('hidden');
+            requestAnimationFrame(() => {
+                modal.classList.remove('opacity-0');
+            });
+        }
+
+        function closeSettingsModal() {
+            const modal = document.getElementById('settingsModal');
+            if (!modal) return;
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('pointer-events-none');
+            }, 300);
         }
 
         function showModeSelectModal() {
             const modal = document.getElementById('modeSelectModal');
+            const subtitle = document.getElementById('modeGreetingSubtitle');
             if (!modal) return;
+            if (subtitle) {
+                subtitle.textContent = formatWishText(activePeriod.subtitlePrompt);
+            }
             modal.classList.remove('hidden');
             requestAnimationFrame(() => {
                 modal.classList.remove('opacity-0');
@@ -809,550 +720,1218 @@
             modal.classList.add('opacity-0', 'pointer-events-none');
             setTimeout(() => {
                 modal.classList.add('hidden');
+                modal.classList.remove('pointer-events-none');
             }, 300);
         }
 
-        async function startLullabyMusic() {
-            if (!lullabyAudio) return;
-            try {
-                if (!lullabyAudio.getAttribute('src')) {
-                    selectRandomTrack();
-                }
-                lullabyAudio.volume = 0.75;
-                await lullabyAudio.play();
-                isMusicPlaying = true;
-                updateMusicUI();
-            } catch (err) {
-                const failedSrc = MUSIC_PLAYLIST[currentTrackIndex]?.src || 'file nhạc';
-                console.warn(`Không thể phát ${failedSrc} (hãy đảm bảo file nằm cùng thư mục với index.html):`, err);
-                const label = document.getElementById('musicStatusLabel');
-                if (label) label.textContent = `Thiếu ${failedSrc}`;
+        function selectMode(mode) {
+            currentMode = mode;
+            hideModeSelectModal();
+
+            document.getElementById('boxModeSection').classList.toggle('hidden', mode !== 'box');
+            document.getElementById('wheelModeSection').classList.toggle('hidden', mode !== 'wheel');
+            document.getElementById('blockBlastSection').classList.toggle('hidden', mode !== 'blockblast');
+
+            if (mode === 'box') {
+                renderShuffledGifts();
+            } else if (mode === 'wheel') {
+                initWheelData();
+            } else if (mode === 'blockblast') {
+                initBlockBlastIfNeeded();
             }
         }
 
-        function stopLullabyMusic() {
-            if (!lullabyAudio) return;
-            lullabyAudio.pause();
-            isMusicPlaying = false;
-            updateMusicUI();
+        // Nhạc nền 10 bài ngẫu nhiên (1.mp3 -> 10.mp3)
+        const TRACK_LIST = Array.from({ length: 10 }, (_, idx) => `${idx + 1}.mp3`);
+        const audioEl = document.getElementById('lullabyAudio');
+        let currentTrackIndex = -1;
+        let isMusicPlaying = false;
+
+        function applyAudioVolume() {
+            if (audioEl) {
+                audioEl.volume = appVolume;
+            }
         }
 
-        // ==========================================
-        // CHẾ ĐỘ 1: VÒNG QUAY MAY MẮN (20 LỜI CHÚC)
-        // ==========================================
-        let wheelWishes = [];
-        let currentWheelRotation = 0; // radian
-        let isWheelSpinning = false;
-        let hasUsedWheelSpin = false;
-
-        function initWheelData() {
-            wheelWishes = getRandomWishes(20);
-            currentWheelRotation = 0;
-            isWheelSpinning = false;
-            hasUsedWheelSpin = false;
-
-            const resultCard = document.getElementById('wheelResultCard');
-            if (resultCard) {
-                resultCard.classList.add('hidden');
-                resultCard.classList.remove('pop-reveal');
+        function pickRandomTrackIndex(excludeIndex = -1) {
+            if (TRACK_LIST.length <= 1) return 0;
+            let nextIdx = Math.floor(Math.random() * TRACK_LIST.length);
+            if (nextIdx === excludeIndex) {
+                nextIdx = (nextIdx + 1) % TRACK_LIST.length;
             }
-
-            const spinBtn = document.getElementById('spinWheelBtn');
-            if (spinBtn) {
-                spinBtn.disabled = false;
-                spinBtn.classList.remove('opacity-60', 'cursor-not-allowed');
-                spinBtn.innerHTML = '<span>QUAY</span><span class="text-[9px] font-normal text-amber-100/90">1 lượt</span>';
-            }
-
-            drawWheel();
+            return nextIdx;
         }
 
-        function drawWheel() {
-            const wheelCanvas = document.getElementById('wheelCanvas');
-            if (!wheelCanvas || wheelWishes.length === 0) return;
+        function playRandomTrack(forcePlay = false) {
+            if (!audioEl) return;
+            currentTrackIndex = pickRandomTrackIndex(currentTrackIndex);
+            const trackName = TRACK_LIST[currentTrackIndex];
+            audioEl.src = trackName;
+            applyAudioVolume();
 
-            const size = window.innerWidth < 640 ? 290 : 340;
-            const dpr = window.devicePixelRatio || 1;
-            wheelCanvas.style.width = `${size}px`;
-            wheelCanvas.style.height = `${size}px`;
-            wheelCanvas.width = size * dpr;
-            wheelCanvas.height = size * dpr;
-
-            const wCtx = wheelCanvas.getContext('2d');
-            wCtx.scale(dpr, dpr);
-
-            const cx = size / 2;
-            const cy = size / 2;
-            const radius = size / 2 - 4;
-            const numSlices = wheelWishes.length; // 20 ô
-            const arc = (Math.PI * 2) / numSlices;
-
-            wCtx.clearRect(0, 0, size, size);
-
-            for (let i = 0; i < numSlices; i++) {
-                const startAngle = currentWheelRotation + i * arc;
-                const endAngle = startAngle + arc;
-
-                // Vẽ từng miếng bánh (1/20 vòng tròn)
-                wCtx.beginPath();
-                wCtx.moveTo(cx, cy);
-                wCtx.arc(cx, cy, radius, startAngle, endAngle);
-                wCtx.closePath();
-                wCtx.fillStyle = WHEEL_COLORS[i % WHEEL_COLORS.length];
-                wCtx.fill();
-
-                wCtx.lineWidth = 1.5;
-                wCtx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
-                wCtx.stroke();
-
-                // Vẽ số thứ tự ô & icon trên từng nan vòng quay
-                wCtx.save();
-                wCtx.translate(cx, cy);
-                wCtx.rotate(startAngle + arc / 2);
-                wCtx.textAlign = 'right';
-                wCtx.textBaseline = 'middle';
-                wCtx.fillStyle = '#FFFBEB';
-                wCtx.font = 'bold 11px Quicksand, sans-serif';
-                wCtx.fillText(`${wheelWishes[i].emoji} #${i + 1}`, radius - 12, 0);
-                wCtx.restore();
+            const infoEl = document.getElementById('trackInfoText');
+            if (infoEl) {
+                infoEl.textContent = `🎵 Đang chọn: ${trackName} (1.mp3 – 10.mp3)`;
             }
 
-            // Vòng trang trí viền ngoài
-            wCtx.beginPath();
-            wCtx.arc(cx, cy, radius, 0, Math.PI * 2);
-            wCtx.lineWidth = 4;
-            wCtx.strokeStyle = '#FDE047';
-            wCtx.stroke();
+            if (forcePlay || isMusicPlaying) {
+                audioEl.play().then(() => {
+                    isMusicPlaying = true;
+                    updateMusicButtonUI();
+                }).catch(() => {
+                    isMusicPlaying = false;
+                    updateMusicButtonUI();
+                });
+            }
         }
 
-        function spinWheel() {
-            if (isWheelSpinning || hasUsedWheelSpin || wheelWishes.length === 0) return;
+        function toggleMusic() {
+            if (!audioEl) return;
+            if (!audioEl.getAttribute('src')) {
+                playRandomTrack(true);
+                return;
+            }
+            if (isMusicPlaying) {
+                audioEl.pause();
+                isMusicPlaying = false;
+                updateMusicButtonUI();
+            } else {
+                applyAudioVolume();
+                audioEl.play().then(() => {
+                    isMusicPlaying = true;
+                    updateMusicButtonUI();
+                }).catch(() => {});
+            }
+        }
 
-            isWheelSpinning = true;
-            if (!userMutedMusic) {
-                startLullabyMusic();
+        function updateMusicButtonUI() {
+            const icon = document.getElementById('musicIcon');
+            const label = document.getElementById('musicLabel');
+            if (icon) icon.textContent = isMusicPlaying ? '🔊' : '🔇';
+            if (label) label.textContent = isMusicPlaying ? 'Đang phát' : 'Bật nhạc';
+        }
+
+        if (audioEl) {
+            audioEl.addEventListener('ended', () => {
+                playRandomTrack(true);
+            });
+        }
+
+        function dismissMusicPrompt(shouldPlay) {
+            const promptModal = document.getElementById('musicPromptModal');
+            if (promptModal) {
+                promptModal.classList.add('opacity-0', 'pointer-events-none');
+                setTimeout(() => {
+                    promptModal.classList.add('hidden');
+                    promptModal.classList.remove('pointer-events-none');
+                }, 250);
+            }
+            if (shouldPlay) {
+                playRandomTrack(true);
+            } else {
+                pickRandomTrackIndex(-1);
             }
 
-            const spinBtn = document.getElementById('spinWheelBtn');
-            if (spinBtn) {
-                spinBtn.disabled = true;
-                spinBtn.innerHTML = '<span>ĐANG</span><span class="text-[9px] font-normal text-amber-100/90">QUAY...</span>';
-            }
-
-            const numSlices = wheelWishes.length; // 20
-            const arc = (Math.PI * 2) / numSlices;
-            const winningIndex = Math.floor(Math.random() * numSlices);
-
-            // Kim chỉ ở đỉnh trên cùng (-Math.PI / 2). Tính góc dừng sao cho ô winningIndex nằm đúng dưới kim
-            const sliceCenter = winningIndex * arc + arc / 2;
-            const pointerAngle = -Math.PI / 2;
-            const jitter = (Math.random() - 0.5) * (arc * 0.55);
-            const targetNormalized = ((pointerAngle - sliceCenter + jitter) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
-
-            const extraSpins = (5 + Math.floor(Math.random() * 3)) * Math.PI * 2;
-            const startRotation = currentWheelRotation;
-            const currentNorm = ((startRotation % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
-            const deltaAngle = extraSpins + ((targetNormalized - currentNorm + Math.PI * 2) % (Math.PI * 2));
-
-            const duration = 4200;
-            const startTime = performance.now();
-
-            function animateSpin(now) {
-                const elapsed = now - startTime;
-                const progress = Math.min(elapsed / duration, 1);
-                // Ease-out cubic mượt mà
-                const eased = 1 - Math.pow(1 - progress, 3);
-
-                currentWheelRotation = startRotation + deltaAngle * eased;
-                drawWheel();
-
-                if (progress < 1) {
-                    requestAnimationFrame(animateSpin);
+            setTimeout(() => {
+                if (hasSavedRecipientName) {
+                    applyRecipientName(recipientName, false);
+                    showModeSelectModal();
                 } else {
-                    isWheelSpinning = false;
-                    hasUsedWheelSpin = true;
+                    showNameInputModal();
+                }
+            }, 260);
+        }
 
-                    if (spinBtn) {
-                        spinBtn.classList.add('opacity-65', 'cursor-not-allowed');
-                        spinBtn.innerHTML = '<span>XONG</span><span class="text-[9px] font-normal text-amber-100/90">✨</span>';
-                    }
+        // Bầu trời sao
+        function createStarfield() {
+            const starfield = document.getElementById('starfield');
+            if (!starfield) return;
+            starfield.innerHTML = '';
+            const starCount = targetFps <= 30 ? 35 : (window.innerWidth < 640 ? 48 : 75);
+            const fragment = document.createDocumentFragment();
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                const size = (Math.random() * 2.4 + 1).toFixed(1);
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                star.style.left = `${(Math.random() * 100).toFixed(2)}%`;
+                star.style.top = `${(Math.random() * 100).toFixed(2)}%`;
+                star.style.setProperty('--duration', `${(Math.random() * 3.5 + 2.5).toFixed(1)}s`);
+                star.style.setProperty('--delay', `${(Math.random() * 4).toFixed(1)}s`);
+                fragment.appendChild(star);
+            }
+            starfield.appendChild(fragment);
+        }
 
-                    const wonWish = wheelWishes[winningIndex];
-                    const resultCard = document.getElementById('wheelResultCard');
-                    const resultBadge = document.getElementById('wheelResultBadge');
-                    const resultText = document.getElementById('wheelResultText');
+        // Cài đặt âm lượng & FPS
+        const SETTINGS_STORAGE_KEY = 'wish_app_settings_v1';
+        let appVolume = 0.75;
+        let targetFps = 60;
+        let frameIntervalMs = 1000 / 60;
 
-                    if (resultBadge) {
-                        resultBadge.textContent = `${wonWish.emoji} Ô số #${winningIndex + 1} dành cho ${recipientName}`;
+        function loadAppSettings() {
+            try {
+                const raw = localStorage.getItem(SETTINGS_STORAGE_KEY);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (typeof parsed.volume === 'number' && parsed.volume >= 0 && parsed.volume <= 1) {
+                        appVolume = parsed.volume;
                     }
-                    if (resultText) {
-                        resultText.dataset.template = wonWish.text;
-                        resultText.textContent = formatWishText(wonWish.text);
+                    if ([30, 60, 90, 120].includes(Number(parsed.fps))) {
+                        targetFps = Number(parsed.fps);
+                        frameIntervalMs = 1000 / targetFps;
                     }
-                    if (resultCard) {
-                        resultCard.classList.remove('hidden');
-                        resultCard.classList.add('pop-reveal');
-                    }
+                }
+            } catch (_) {}
+            applyAudioVolume();
+            updateSettingsModalUI();
+        }
 
-                    const statusSubtitle = document.getElementById('statusSubtitle');
-                    const turnFooterText = document.getElementById('turnFooterText');
-                    if (statusSubtitle) {
-                        statusSubtitle.textContent = 'Vòng quay đã dừng lại — tải lại trang nếu muốn quay lượt mới nhé! ✨';
-                        statusSubtitle.classList.remove('text-indigo-200/90');
-                        statusSubtitle.classList.add('text-amber-200', 'font-semibold');
-                    }
-                    if (turnFooterText) {
-                        turnFooterText.innerHTML = '🎡 Bạn đã nhận được lời chúc từ vòng quay — chúc ngủ thật ngon nhé!';
-                    }
+        function saveAppSettings() {
+            try {
+                localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify({
+                    volume: appVolume,
+                    fps: targetFps
+                }));
+            } catch (_) {}
+        }
 
-                    const wheelCanvas = document.getElementById('wheelCanvas');
-                    if (wheelCanvas) {
-                        const rect = wheelCanvas.getBoundingClientRect();
-                        launchCelebration(rect.left + rect.width / 2, rect.top + rect.height * 0.35, 55);
-                    }
+        function handleVolumeSliderChange(val) {
+            const pct = Math.max(0, Math.min(100, Number(val) || 0));
+            appVolume = pct / 100;
+            applyAudioVolume();
+            saveAppSettings();
+            updateSettingsModalUI();
+        }
+
+        function setTargetFps(fps) {
+            if (![30, 60, 90, 120].includes(Number(fps))) return;
+            targetFps = Number(fps);
+            frameIntervalMs = 1000 / targetFps;
+            saveAppSettings();
+            createStarfield();
+            updateSettingsModalUI();
+        }
+
+        function updateSettingsModalUI() {
+            const slider = document.getElementById('volumeSlider');
+            const volLabel = document.getElementById('volumeValueLabel');
+            const fpsLabel = document.getElementById('fpsValueLabel');
+            const pct = Math.round(appVolume * 100);
+            if (slider) slider.value = String(pct);
+            if (volLabel) volLabel.textContent = `${pct}%`;
+            if (fpsLabel) fpsLabel.textContent = `${targetFps} FPS`;
+
+            document.querySelectorAll('.fps-option').forEach((btn) => {
+                const active = Number(btn.getAttribute('data-fps-btn')) === targetFps;
+                btn.classList.toggle('bg-amber-400', active);
+                btn.classList.toggle('text-slate-950', active);
+                btn.classList.toggle('border-amber-300', active);
+                btn.classList.toggle('bg-white/10', !active);
+                btn.classList.toggle('text-white', !active);
+            });
+        }
+
+        // Bộ sưu tập lời chúc
+        const COLLECTION_STORAGE_KEY = 'wish_collection_v1';
+        let collectedWishes = [];
+        let activeCollectionFilter = 'all';
+
+        function loadCollectedWishes() {
+            try {
+                const raw = localStorage.getItem(COLLECTION_STORAGE_KEY);
+                collectedWishes = raw ? JSON.parse(raw) : [];
+                if (!Array.isArray(collectedWishes)) collectedWishes = [];
+            } catch (_) {
+                collectedWishes = [];
+            }
+            updateCollectionBadge();
+        }
+
+        function saveCollectedWishes() {
+            try {
+                localStorage.setItem(COLLECTION_STORAGE_KEY, JSON.stringify(collectedWishes));
+            } catch (_) {}
+            updateCollectionBadge();
+        }
+
+        function updateCollectionBadge() {
+            const badge = document.getElementById('collectionCountBadge');
+            if (badge) badge.textContent = String(collectedWishes.length);
+            const progress = document.getElementById('collectionProgressText');
+            if (progress) {
+                progress.textContent = `Đã sưu tầm ${collectedWishes.length} / 4.000 lời chúc (1.000 câu mỗi buổi)`;
+            }
+        }
+
+        function addWishToCollection(wish, sourceLabel) {
+            if (!wish || !wish.text) return false;
+            const key = `${wish.periodId || activePeriod.id}_${wish.number || 0}_${wish.text}`;
+            const exists = collectedWishes.some((item) => item.key === key);
+            if (exists) return false;
+
+            collectedWishes.unshift({
+                key,
+                periodId: wish.periodId || activePeriod.id,
+                periodLabel: wish.periodLabel || activePeriod.label,
+                number: wish.number || 1,
+                emoji: wish.emoji || '✨',
+                template: wish.text,
+                source: sourceLabel || '✨ Quà tặng',
+                savedAt: Date.now()
+            });
+            saveCollectedWishes();
+            return true;
+        }
+
+        function openCollectionModal() {
+            const modal = document.getElementById('collectionModal');
+            if (!modal) return;
+            renderCollectionList();
+            modal.classList.remove('hidden');
+            requestAnimationFrame(() => {
+                modal.classList.remove('opacity-0');
+            });
+        }
+
+        function closeCollectionModal() {
+            const modal = document.getElementById('collectionModal');
+            if (!modal) return;
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('pointer-events-none');
+            }, 300);
+        }
+
+        function setCollectionFilter(filterId) {
+            activeCollectionFilter = filterId;
+            document.querySelectorAll('.col-filter-btn').forEach((btn) => {
+                const selected = btn.getAttribute('data-filter') === filterId;
+                btn.classList.toggle('bg-amber-400', selected);
+                btn.classList.toggle('text-slate-950', selected);
+                btn.classList.toggle('bg-white/10', !selected);
+                btn.classList.toggle('text-white', !selected);
+            });
+            renderCollectionList();
+        }
+
+        function renderCollectionList() {
+            const container = document.getElementById('collectionListContainer');
+            if (!container) return;
+
+            const filtered = activeCollectionFilter === 'all'
+                ? collectedWishes
+                : collectedWishes.filter((item) => item.periodId === activeCollectionFilter);
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-indigo-200/80 text-xs sm:text-sm">
+                        Chưa có lời chúc nào trong mục này. Hãy quay vòng quay, mở hộp quà hoặc chơi Block Blast để sưu tầm nhé! ✨
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map((item) => `
+                <div class="p-3 rounded-2xl bg-white/10 border border-white/15">
+                    <div class="flex items-center justify-between text-[10px] text-amber-200/90 font-semibold mb-1">
+                        <span>${item.emoji} ${item.periodLabel} #${item.number}/1000</span>
+                        <span class="px-2 py-0.5 rounded-full bg-pink-500/25 text-pink-200">${item.source}</span>
+                    </div>
+                    <p class="text-xs sm:text-sm text-white leading-snug">${formatWishText(item.template)}</p>
+                </div>
+            `).join('');
+        }
+
+        // Lời chúc theo thời gian thực (4 buổi x 1.000 câu)
+        const TIME_PERIODS = {
+            morning: {
+                id: 'morning',
+                label: 'Buổi sáng',
+                topColor: '#0c4a6e',
+                midColor: '#0369a1',
+                bottomColor: '#f59e0b',
+                titleTemplate: 'Chào buổi sáng {name} 🌅',
+                headingTemplate: 'Chào buổi sáng {name} ☀️',
+                subtitlePrompt: 'Chào {name}, bắt đầu ngày mới tràn đầy năng lượng nhé!'
+            },
+            noon: {
+                id: 'noon',
+                label: 'Buổi trưa',
+                topColor: '#075985',
+                midColor: '#0284c7',
+                bottomColor: '#38bdf8',
+                titleTemplate: 'Chúc buổi trưa vui vẻ {name} 🌤️',
+                headingTemplate: 'Nghỉ trưa nhẹ nhàng nha {name} 🌤️',
+                subtitlePrompt: 'Chào {name}, nhớ ăn trưa đủ chất và chợp mắt xíu nhé!'
+            },
+            afternoon: {
+                id: 'afternoon',
+                label: 'Buổi chiều',
+                topColor: '#312e81',
+                midColor: '#7e22ce',
+                bottomColor: '#ec4899',
+                titleTemplate: 'Chào buổi chiều {name} 🌇',
+                headingTemplate: 'Chiều dịu dàng nhé {name} 🌇',
+                subtitlePrompt: 'Chào {name}, chúc buổi chiều suôn sẻ và nhiều niềm vui!'
+            },
+            night: {
+                id: 'night',
+                label: 'Buổi tối',
+                topColor: '#090d16',
+                midColor: '#161b33',
+                bottomColor: '#2a2448',
+                titleTemplate: 'Chúc ngủ ngon {name} 🌙',
+                headingTemplate: 'Chúc {name} ngủ ngon 🌙',
+                subtitlePrompt: 'Chào {name}, chúc đêm nay thật bình yên và mộng đẹp!'
+            }
+        };
+
+        function detectTimePeriod(hour) {
+            if (hour >= 5 && hour < 11) return TIME_PERIODS.morning;
+            if (hour >= 11 && hour < 13) return TIME_PERIODS.noon;
+            if (hour >= 13 && hour < 18) return TIME_PERIODS.afternoon;
+            return TIME_PERIODS.night;
+        }
+
+        const PERIOD_TEMPLATES = {
+            morning: [
+                'Chào buổi sáng {name}, chúc {name} một ngày mới tràn ngập nắng ấm và nụ cười rạng rỡ!',
+                'Bình minh đã lên rồi {name} ơi, chúc {name} khởi đầu ngày mới thật nhiều năng lượng tích cực!',
+                'Chúc {name} buổi sáng thật an lành, mọi dự định hôm nay đều diễn ra suôn sẻ như ý!',
+                'Sáng nay nhớ ăn sáng đầy đủ nha {name}, chúc {name} một ngày làm việc và học tập thật hiệu quả!',
+                'Gửi {name} làn gió sớm mát lành cùng lời chúc một ngày mới thật nhiều niềm vui nhỏ xinh!'
+            ],
+            noon: [
+                'Giữa trưa rồi {name} ơi, nhớ nghỉ ngơi và ăn uống ngon miệng để nạp lại năng lượng nhé!',
+                'Chúc {name} buổi trưa thật mát mẻ, tạm gác lại âu lo và thư giãn một chút nha!',
+                'Trưa nay chúc {name} có bữa trưa thật ngon và giấc ngủ trưa ngắn thật sâu để chiều bừng sáng!',
+                'Gửi {name} chút gió mát giữa trưa, mong mọi mệt mỏi buổi sáng đều tan biến hết!',
+                'Chúc {name} buổi trưa vui vẻ, giữ nụ cười tươi tắn cho chặng đường tiếp theo trong ngày!'
+            ],
+            afternoon: [
+                'Chào buổi chiều {name}, chúc {name} hoàn thành trọn vẹn mọi việc với thật nhiều niềm vui!',
+                'Chiều xuống dịu dàng rồi {name} ơi, chúc {name} một buổi chiều nhẹ nhàng và nhiều may mắn!',
+                'Chúc {name} buổi chiều nhiều hứng khởi, gặp toàn điều dễ thương và những tin vui bất ngờ!',
+                'Dù buổi chiều có bận rộn đến đâu thì {name} vẫn nhớ dành chút thời gian thở chậm lại nhé!',
+                'Hoàng hôn sắp ghé qua rồi {name}, chúc {name} khép lại ngày làm việc thật trọn vẹn!'
+            ],
+            night: [
+                'Chúc {name} ngủ ngon, chìm vào giấc mơ êm ái và sáng mai thức dậy thật rạng rỡ!',
+                'Đêm về yên bình rồi {name} ơi, thả lỏng cơ thể và ngủ thật ngon giấc nhé!',
+                'Chúc {name} đêm nay không còn lo âu, chỉ có những giấc mơ đẹp và bình yên nhất!',
+                'Ngủ ngon nha {name}, những ngôi sao trên cao đang canh giấc ngủ ngọt ngào cho {name} đó!',
+                'Chúc {name} có một đêm thật sâu giấc để ngày mai lại tỏa sáng theo cách riêng của {name}!'
+            ]
+        };
+
+        const PERIOD_EMOJIS = {
+            morning: ['🌅', '☀️', '🌻', '🌷', '✨'],
+            noon: ['🌤️', '🍜', '🍃', '☁️', '💛'],
+            afternoon: ['🌇', '🌸', '🎀', '🦋', '🍓'],
+            night: ['🌙', '⭐', '🧸', '💤', '🌌']
+        };
+
+        function buildPeriodWishes(periodId) {
+            const baseList = PERIOD_TEMPLATES[periodId] || PERIOD_TEMPLATES.night;
+            const emojis = PERIOD_EMOJIS[periodId] || PERIOD_EMOJIS.night;
+            const periodLabel = (TIME_PERIODS[periodId] || TIME_PERIODS.night).label;
+            const list = [];
+            for (let i = 0; i < 1000; i++) {
+                const template = baseList[i % baseList.length];
+                const suffix = i >= baseList.length ? ` (Lời chúc #${i + 1})` : '';
+                list.push({
+                    id: `${periodId}_${i + 1}`,
+                    periodId,
+                    periodLabel,
+                    number: i + 1,
+                    emoji: emojis[i % emojis.length],
+                    text: `${template}${suffix}`
+                });
+            }
+            return list;
+        }
+
+        const ALL_PERIOD_WISHES = {
+            morning: buildPeriodWishes('morning'),
+            noon: buildPeriodWishes('noon'),
+            afternoon: buildPeriodWishes('afternoon'),
+            night: buildPeriodWishes('night')
+        };
+
+        let activePeriod = detectTimePeriod(new Date().getHours());
+        let WISH_POOL = ALL_PERIOD_WISHES[activePeriod.id];
+
+        function formatWishText(template) {
+            return String(template || '').replace(/\{name\}/g, recipientName);
+        }
+
+        function getRandomWishes(count) {
+            const copy = [...WISH_POOL];
+            for (let i = copy.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [copy[i], copy[j]] = [copy[j], copy[i]];
+            }
+            return copy.slice(0, Math.min(count, copy.length));
+        }
+
+        function applyPeriodTheme(period) {
+            const root = document.documentElement;
+            root.style.setProperty('--night-top', period.topColor);
+            root.style.setProperty('--night-mid', period.midColor);
+            root.style.setProperty('--night-bottom', period.bottomColor);
+            document.body.style.background = `radial-gradient(ellipse at bottom, ${period.bottomColor} 0%, ${period.midColor} 45%, ${period.topColor} 100%)`;
+
+            document.title = formatWishText(period.titleTemplate);
+            const mainHeading = document.getElementById('mainHeading');
+            if (mainHeading) mainHeading.textContent = formatWishText(period.headingTemplate);
+        }
+
+        function updateRealtimeClockAndTheme(forceRefreshWishes = false) {
+            const now = new Date();
+            const hh = String(now.getHours()).padStart(2, '0');
+            const mm = String(now.getMinutes()).padStart(2, '0');
+            const clockEl = document.getElementById('liveClockBadge');
+            const nextPeriod = detectTimePeriod(now.getHours());
+
+            if (clockEl) {
+                clockEl.textContent = `🕒 ${hh}:${mm} • ${nextPeriod.label}`;
+            }
+
+            const periodChanged = nextPeriod.id !== activePeriod.id;
+            activePeriod = nextPeriod;
+            WISH_POOL = ALL_PERIOD_WISHES[activePeriod.id];
+
+            if (periodChanged || forceRefreshWishes) {
+                applyPeriodTheme(activePeriod);
+                if (periodChanged) {
+                    if (currentMode === 'wheel') initWheelData();
+                    else if (currentMode === 'box') renderShuffledGifts();
+                }
+            }
+        }
+
+        const BOX_THEMES = [
+            { lidFrom: '#F43F5E', lidTo: '#E11D48', boxFrom: '#FB7185', boxTo: '#BE123C', ribbon: '#FDE047', ribbonDark: '#FACC15' },
+            { lidFrom: '#A855F7', lidTo: '#7E22CE', boxFrom: '#C084FC', boxTo: '#6B21A8', ribbon: '#FDE68A', ribbonDark: '#FBBF24' },
+            { lidFrom: '#EC4899', lidTo: '#BE185D', boxFrom: '#F472B6', boxTo: '#9D174D', ribbon: '#FEF08A', ribbonDark: '#FACC15' },
+            { lidFrom: '#6366F1', lidTo: '#4338CA', boxFrom: '#818CF8', boxTo: '#3730A3', ribbon: '#FDE047', ribbonDark: '#EAB308' },
+            { lidFrom: '#F97316', lidTo: '#C2410C', boxFrom: '#FB923C', boxTo: '#9A3412', ribbon: '#FEF9C3', ribbonDark: '#FDE047' },
+            { lidFrom: '#14B8A6', lidTo: '#0F766E', boxFrom: '#2DD4BF', boxTo: '#115E59', ribbon: '#FDE047', ribbonDark: '#FACC15' },
+            { lidFrom: '#D946EF', lidTo: '#A21CAF', boxFrom: '#E879F9', boxTo: '#86198F', ribbon: '#FEF08A', ribbonDark: '#FBBF24' },
+            { lidFrom: '#3B82F6', lidTo: '#1D4ED8', boxFrom: '#60A5FA', boxTo: '#1E40AF', ribbon: '#FDE047', ribbonDark: '#FACC15' },
+            { lidFrom: '#F43F5E', lidTo: '#9F1239', boxFrom: '#FDA4AF', boxTo: '#881337', ribbon: '#FDE047', ribbonDark: '#EAB308' }
+        ];
+
+        const WHEEL_COLORS = [
+            '#E11D48', '#7C3AED', '#DB2777', '#2563EB', '#D97706',
+            '#0D9488', '#9333EA', '#E11D48', '#4F46E5', '#C026D3',
+            '#BE123C', '#0284C7', '#B45309', '#6D28D9', '#DB2777',
+            '#059669', '#7E22CE', '#DC2626', '#4338CA', '#A21CAF'
+        ];
+
+        // Hiệu ứng pháo giấy tối ưu theo FPS
+        const confettiCanvas = document.getElementById('confettiCanvas');
+        const confettiCtx = confettiCanvas ? confettiCanvas.getContext('2d') : null;
+        let confettiParticles = [];
+        let confettiAnimId = null;
+        let lastConfettiFrameTime = 0;
+
+        function resizeConfettiCanvas() {
+            if (!confettiCanvas) return;
+            confettiCanvas.width = window.innerWidth;
+            confettiCanvas.height = window.innerHeight;
+        }
+
+        class ConfettiPiece {
+            constructor() {
+                this.x = Math.random() * (confettiCanvas ? confettiCanvas.width : window.innerWidth);
+                this.y = -20 - Math.random() * 120;
+                this.size = Math.random() * 8 + 4;
+                this.vy = Math.random() * 3.5 + 2.2;
+                this.vx = (Math.random() - 0.5) * 2.5;
+                this.angle = Math.random() * Math.PI * 2;
+                this.vAngle = (Math.random() - 0.5) * 0.16;
+                const colors = ['#FDE047', '#F472B6', '#A78BFA', '#38BDF8', '#34D399', '#FB923C'];
+                this.color = colors[Math.floor(Math.random() * colors.length)];
+                this.alpha = 1;
+            }
+
+            update(dtScale) {
+                this.y += this.vy * dtScale;
+                this.x += this.vx * dtScale;
+                this.angle += this.vAngle * dtScale;
+                if (this.y > (confettiCanvas ? confettiCanvas.height - 60 : window.innerHeight - 60)) {
+                    this.alpha -= 0.03 * dtScale;
                 }
             }
 
-            requestAnimationFrame(animateSpin);
+            draw(ctx) {
+                if (this.alpha <= 0) return;
+                ctx.save();
+                ctx.globalAlpha = Math.max(0, this.alpha);
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.angle);
+                ctx.fillStyle = this.color;
+                ctx.fillRect(-this.size / 2, -this.size / 3, this.size, this.size * 0.65);
+                ctx.restore();
+            }
         }
 
-        // ==========================================
-        // CHẾ ĐỘ 2: 9 HỘP QUÀ BÍ MẬT (NHƯ CŨ)
-        // ==========================================
-        let chosenCardIndex = null;
-
-        function showLockedToast() {
-            // Không hiển thị bảng thông báo giữa màn hình
+        function launchCelebration(count = 45) {
+            if (!confettiCanvas || !confettiCtx || document.hidden) return;
+            const actualCount = targetFps <= 30 ? Math.min(count, 24) : count;
+            for (let i = 0; i < actualCount; i++) {
+                confettiParticles.push(new ConfettiPiece());
+            }
+            if (!confettiAnimId) {
+                lastConfettiFrameTime = performance.now();
+                confettiAnimId = requestAnimationFrame(stepConfetti);
+            }
         }
 
-        function lockOtherGifts(selectedIndex) {
-            const allCards = document.querySelectorAll('#giftGrid .gift-card');
-            allCards.forEach((otherCard, idx) => {
-                if (idx !== selectedIndex) {
-                    otherCard.classList.add('locked');
-                    const otherTrigger = otherCard.querySelector('.gift-trigger');
-                    const otherLabel = otherCard.querySelector('.box-label');
-                    if (otherTrigger) {
-                        otherTrigger.classList.remove('gift-wobble');
-                        otherTrigger.setAttribute('aria-disabled', 'true');
-                    }
-                    if (otherLabel) {
-                        otherLabel.textContent = `🔒 Hộp #${idx + 1}`;
-                    }
-                }
+        function stepConfetti(now) {
+            if (!confettiCanvas || !confettiCtx || document.hidden) {
+                confettiAnimId = null;
+                return;
+            }
+            const elapsed = now - lastConfettiFrameTime;
+            if (elapsed < frameIntervalMs) {
+                confettiAnimId = requestAnimationFrame(stepConfetti);
+                return;
+            }
+            lastConfettiFrameTime = now - (elapsed % frameIntervalMs);
+            const dtScale = Math.min(2.2, Math.max(0.5, elapsed / (1000 / 60)));
+
+            confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+            confettiParticles = confettiParticles.filter((p) => {
+                p.update(dtScale);
+                p.draw(confettiCtx);
+                return p.alpha > 0 && p.y < confettiCanvas.height + 30;
             });
 
-            const statusSubtitle = document.getElementById('statusSubtitle');
-            const turnFooterText = document.getElementById('turnFooterText');
-            if (statusSubtitle) {
-                statusSubtitle.textContent = 'Lượt mở quà hôm nay đã dùng rồi — tải lại trang để thử vận may lần sau nhé! ✨';
-                statusSubtitle.classList.remove('text-indigo-200/90');
-                statusSubtitle.classList.add('text-amber-200', 'font-semibold');
-            }
-            if (turnFooterText) {
-                turnFooterText.innerHTML = '✨ Lượt mở quà hôm nay đã dùng rồi — tải lại trang để thử vận may lần sau nhé!';
+            if (confettiParticles.length > 0) {
+                confettiAnimId = requestAnimationFrame(stepConfetti);
+            } else {
+                confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+                confettiAnimId = null;
             }
         }
+
+        // Toast hiển thị lời chúc
+        let toastTimer = null;
+        function showWishToast(title, body) {
+            const toast = document.getElementById('wishToast');
+            const titleEl = document.getElementById('wishToastTitle');
+            const bodyEl = document.getElementById('wishToastBody');
+            if (!toast || !titleEl || !bodyEl) return;
+            titleEl.textContent = title;
+            bodyEl.textContent = body;
+            toast.classList.remove('hidden');
+            if (toastTimer) clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                hideWishToast();
+            }, 6500);
+        }
+
+        function hideWishToast() {
+            const toast = document.getElementById('wishToast');
+            if (toast) toast.classList.add('hidden');
+        }
+
+        // Chế độ 1: 9 hộp quà (giới hạn 1 lượt mở)
+        let hasOpenedAnyGift = false;
+        let currentBoxWishes = [];
 
         function renderShuffledGifts() {
             const grid = document.getElementById('giftGrid');
+            const banner = document.getElementById('boxStatusBanner');
+            if (!grid) return;
+
+            currentBoxWishes = getRandomWishes(9);
             grid.innerHTML = '';
-            chosenCardIndex = null;
 
-            // Chọn ngẫu nhiên 9 lời chúc từ kho 100 lời chúc
-            const shuffledGifts = getRandomWishes(9).map((wish, idx) => ({
-                id: `wish-${idx + 1}`,
-                isEmpty: false,
-                text: wish.text,
-                emoji: wish.emoji
-            }));
-
-            shuffledGifts.forEach((item, index) => {
-                const theme = BOX_THEMES[index % BOX_THEMES.length];
+            currentBoxWishes.forEach((wish, idx) => {
+                const theme = BOX_THEMES[idx % BOX_THEMES.length];
                 const card = document.createElement('div');
-                card.className = 'gift-card relative flex flex-col items-center w-full max-w-[96px] sm:max-w-[116px] select-none';
-
-                const bubbleStyle = item.isEmpty
-                    ? 'from-slate-100 via-gray-100 to-slate-200 border-slate-300 text-slate-600'
-                    : 'from-rose-50 via-amber-50 to-pink-100 border-pink-200 warm-text-glow';
-
+                card.className = 'gift-card rounded-2xl p-2.5 sm:p-4 min-h-[126px] sm:min-h-[164px] flex flex-col items-center justify-center text-center cursor-pointer';
+                card.style.setProperty('--wiggle-duration', `${(3.1 + (idx % 4) * 0.35).toFixed(2)}s`);
+                card.style.setProperty('--wiggle-delay', `${(idx * 0.28).toFixed(2)}s`);
                 card.innerHTML = `
-                    <!-- Thẻ lời chúc / thông báo hộp trống nổi phía trên hộp -->
-                    <div class="message-bubble rounded-2xl bg-gradient-to-br ${bubbleStyle} border-2 p-2.5 sm:p-3 shadow-2xl text-center">
-                        <div class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider ${item.isEmpty ? 'text-slate-400' : 'text-pink-400'} mb-0.5">
-                            ${item.emoji} ${item.isEmpty ? 'Hộp trống' : 'Lời chúc'}
+                    <div class="gift-visual" style="--lid-from:${theme.lidFrom};--lid-to:${theme.lidTo};--box-from:${theme.boxFrom};--box-to:${theme.boxTo};--ribbon-color:${theme.ribbon};--ribbon-dark:${theme.ribbonDark};">
+                        <div class="gift-bow">
+                            <span class="gift-bow-loop"></span>
+                            <span class="gift-bow-knot"></span>
+                            <span class="gift-bow-loop"></span>
                         </div>
-                        <p data-template="${item.text}" class="wish-text ${item.isEmpty ? 'text-[11px] sm:text-xs font-semibold text-slate-600 leading-snug' : 'font-script text-lg sm:text-2xl font-bold leading-snug'}">
-                            ${formatWishText(item.text)}
-                        </p>
-                        <button type="button" data-action="close"
-                                class="mt-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-semibold ${item.isEmpty ? 'bg-slate-200 hover:bg-slate-300 text-slate-700' : 'bg-pink-200/80 hover:bg-pink-300/80 text-rose-900'} transition">
-                            Đóng lại
-                        </button>
+                        <div class="gift-lid"></div>
+                        <div class="gift-box-body"></div>
                     </div>
-
-                    <!-- Hộp quà có thể bấm mở -->
-                    <div role="button" tabindex="0" data-action="toggle" aria-label="Mở hộp quà số ${index + 1}"
-                         style="--wobble-dur: ${(2.6 + (index % 4) * 0.35).toFixed(2)}s; --wobble-delay: ${(index * 0.2).toFixed(2)}s;"
-                         class="gift-trigger gift-wobble relative w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center cursor-pointer">
-                        
-                        ${item.isEmpty ? '' : '<div class="inner-glow absolute -top-3 w-24 h-24 sm:w-28 sm:h-28 rounded-full pointer-events-none z-0"></div>'}
-
-                        <!-- Huy hiệu ổ khóa khi hộp bị khóa -->
-                        <div class="lock-badge absolute z-30 flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-900/85 border border-white/25 text-amber-200 text-xs sm:text-sm shadow-lg pointer-events-none">
-                            🔒
-                        </div>
-
-                        <!-- Nắp hộp -->
-                        <div class="gift-lid absolute top-0 left-0 w-full pointer-events-none">
-                            <svg viewBox="0 0 220 95" class="w-full h-auto drop-shadow-md">
-                                <path d="M110 42 C85 10, 48 18, 65 42 C74 52, 98 46, 110 42 Z" fill="${theme.ribbon}" stroke="#D97706" stroke-width="2.5"/>
-                                <path d="M110 42 C135 10, 172 18, 155 42 C146 52, 122 46, 110 42 Z" fill="${theme.ribbon}" stroke="#D97706" stroke-width="2.5"/>
-                                <rect x="100" y="31" width="20" height="18" rx="6" fill="${theme.ribbonDark}" stroke="#B45309" stroke-width="2.5"/>
-                                <rect x="18" y="44" width="184" height="34" rx="10" fill="url(#lid-${item.id}-${index})"/>
-                                <rect x="96" y="44" width="28" height="34" fill="${theme.ribbon}"/>
-                                <rect x="22" y="47" width="176" height="6" rx="3" fill="rgba(255,255,255,0.28)"/>
-                                <defs>
-                                    <linearGradient id="lid-${item.id}-${index}" x1="18" y1="44" x2="202" y2="78" gradientUnits="userSpaceOnUse">
-                                        <stop offset="0%" stop-color="${theme.lidFrom}"/>
-                                        <stop offset="100%" stop-color="${theme.lidTo}"/>
-                                    </linearGradient>
-                                </defs>
-                            </svg>
-                        </div>
-
-                        <!-- Thân hộp -->
-                        <svg viewBox="0 0 220 140" class="w-full h-auto mt-5 sm:mt-6 drop-shadow-lg z-10">
-                            <ellipse cx="110" cy="131" rx="76" ry="7" fill="rgba(9, 13, 22, 0.45)"/>
-                            <rect x="28" y="22" width="164" height="104" rx="12" fill="url(#box-${item.id}-${index})"/>
-                            <rect x="28" y="22" width="164" height="12" fill="rgba(0, 0, 0, 0.22)"/>
-                            <rect x="34" y="28" width="10" height="90" rx="5" fill="rgba(255, 255, 255, 0.15)"/>
-                            <rect x="96" y="22" width="28" height="104" fill="${theme.ribbon}"/>
-                            <rect x="96" y="22" width="28" height="10" fill="rgba(180, 83, 9, 0.22)"/>
-                            <rect x="28" y="62" width="164" height="22" fill="${theme.ribbonDark}"/>
-                            <rect x="96" y="62" width="28" height="22" fill="${theme.ribbon}"/>
-                            <defs>
-                                <linearGradient id="box-${item.id}-${index}" x1="28" y1="22" x2="192" y2="126" gradientUnits="userSpaceOnUse">
-                                    <stop offset="0%" stop-color="${theme.boxFrom}"/>
-                                    <stop offset="100%" stop-color="${theme.boxTo}"/>
-                                </linearGradient>
-                            </defs>
-                        </svg>
-                    </div>
-
-                    <span class="box-label mt-0.5 text-[10px] sm:text-[11px] font-semibold text-amber-100/85">Hộp #${index + 1}</span>
+                    <div class="gift-label text-[11px] sm:text-xs font-medium text-indigo-100/90 mt-0.5">Hộp #${idx + 1}</div>
+                    <div class="wish-text hidden text-[11px] sm:text-sm text-white leading-snug mt-1.5" data-template="${wish.text.replace(/"/g, '&quot;')}">${formatWishText(wish.text)}</div>
+                    <span class="gift-hint hidden mt-1 px-2 py-0.5 rounded-full bg-amber-300/20 text-[10px] font-semibold text-amber-200">✨ Đã mở (${wish.periodLabel} #${wish.number}/1000)</span>
                 `;
-
-                const trigger = card.querySelector('.gift-trigger');
-                const closeMiniBtn = card.querySelector('[data-action="close"]');
-
-                function setOpenedState(open) {
-                    if (open) {
-                        const isFirstTimeOpening = chosenCardIndex === null;
-                        chosenCardIndex = index;
-                        card.classList.add('opened');
-                        trigger.classList.remove('gift-wobble');
-
-                        if (isFirstTimeOpening) {
-                            lockOtherGifts(index);
-                            if (!userMutedMusic) {
-                                startLullabyMusic();
-                            }
-                            if (!item.isEmpty) {
-                                const rect = trigger.getBoundingClientRect();
-                                launchCelebration(rect.left + rect.width / 2, rect.top + rect.height * 0.4, 42);
-                            }
-                        }
-                    } else {
-                        card.classList.remove('opened');
-                    }
-                }
-
-                function handleBoxInteract() {
-                    if (chosenCardIndex !== null && chosenCardIndex !== index) {
-                        showLockedToast();
-                        return;
-                    }
-                    const willOpen = !card.classList.contains('opened');
-                    setOpenedState(willOpen);
-                }
-
-                trigger.addEventListener('click', handleBoxInteract);
-
-                trigger.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        handleBoxInteract();
-                    }
-                });
-
-                closeMiniBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    setOpenedState(false);
-                });
-
+                card.addEventListener('click', () => handleOpenGift(card, wish, idx));
                 grid.appendChild(card);
+            });
+
+            if (banner && !hasOpenedAnyGift) {
+                banner.textContent = '🎁 Bạn đang có 1 lượt mở quà — hãy chọn hộp mình thích nhất!';
+            }
+        }
+
+        function handleOpenGift(card, wish, index) {
+            if (hasOpenedAnyGift || card.classList.contains('opened')) return;
+            hasOpenedAnyGift = true;
+            card.classList.add('opened');
+
+            const visualEl = card.querySelector('.gift-visual');
+            const labelEl = card.querySelector('.gift-label');
+            const wishTextEl = card.querySelector('.wish-text');
+            const hintEl = card.querySelector('.gift-hint');
+
+            if (visualEl) visualEl.classList.add('hidden');
+            if (labelEl) {
+                labelEl.textContent = `${wish.emoji} Hộp #${index + 1}`;
+                labelEl.classList.add('text-amber-300', 'font-bold');
+            }
+            if (wishTextEl) {
+                wishTextEl.textContent = formatWishText(wish.text);
+                wishTextEl.classList.remove('hidden');
+            }
+            if (hintEl) {
+                hintEl.classList.remove('hidden');
+            }
+
+            const banner = document.getElementById('boxStatusBanner');
+            if (banner) {
+                banner.textContent = `🎉 Bạn đã mở Hộp #${index + 1} (đã dùng hết 1 lượt mở quà)`;
+            }
+
+            addWishToCollection(wish, `🎁 Hộp #${index + 1}`);
+            launchCelebration(45);
+        }
+
+        // Chế độ 2: Vòng quay 20 ô (giới hạn 1 lượt quay, khóa nhịp theo FPS)
+        const wheelCanvas = document.getElementById('wheelCanvas');
+        const wheelCtx = wheelCanvas ? wheelCanvas.getContext('2d') : null;
+        let wheelItems = [];
+        let wheelAngle = 0;
+        let hasSpunWheel = false;
+        let isSpinningWheel = false;
+        let wheelAnimId = null;
+        let lastWheelFrameTime = 0;
+
+        function initWheelData() {
+            wheelItems = getRandomWishes(20);
+            resizeWheelCanvas();
+            drawWheel();
+        }
+
+        function resizeWheelCanvas() {
+            if (!wheelCanvas) return;
+            const rect = wheelCanvas.getBoundingClientRect();
+            const size = Math.max(240, Math.round(rect.width || 320));
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+            wheelCanvas.width = size * dpr;
+            wheelCanvas.height = size * dpr;
+            if (wheelCtx) {
+                wheelCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            }
+        }
+
+        function drawWheel() {
+            if (!wheelCanvas || !wheelCtx || wheelItems.length === 0) return;
+            const size = wheelCanvas.clientWidth || 320;
+            const cx = size / 2;
+            const cy = size / 2;
+            const radius = size / 2 - 4;
+            const sliceAngle = (Math.PI * 2) / wheelItems.length;
+
+            wheelCtx.clearRect(0, 0, size, size);
+
+            for (let i = 0; i < wheelItems.length; i++) {
+                const startAngle = wheelAngle + i * sliceAngle;
+                const endAngle = startAngle + sliceAngle;
+
+                wheelCtx.beginPath();
+                wheelCtx.moveTo(cx, cy);
+                wheelCtx.arc(cx, cy, radius, startAngle, endAngle);
+                wheelCtx.closePath();
+                wheelCtx.fillStyle = WHEEL_COLORS[i % WHEEL_COLORS.length];
+                wheelCtx.fill();
+                wheelCtx.lineWidth = 1.5;
+                wheelCtx.strokeStyle = 'rgba(255,255,255,0.28)';
+                wheelCtx.stroke();
+
+                wheelCtx.save();
+                wheelCtx.translate(cx, cy);
+                wheelCtx.rotate(startAngle + sliceAngle / 2);
+                wheelCtx.textAlign = 'right';
+                wheelCtx.fillStyle = '#ffffff';
+                wheelCtx.font = `bold ${Math.max(10, Math.round(size * 0.032))}px Inter, sans-serif`;
+                wheelCtx.fillText(`${i + 1} ${wheelItems[i].emoji}`, radius - 10, 4);
+                wheelCtx.restore();
+            }
+        }
+
+        function spinWheel() {
+            if (isSpinningWheel || hasSpunWheel || wheelItems.length === 0) return;
+            isSpinningWheel = true;
+            hasSpunWheel = true;
+
+            const spinBtn = document.getElementById('spinWheelBtn');
+            const banner = document.getElementById('wheelStatusBanner');
+            if (spinBtn) spinBtn.disabled = true;
+            if (banner) banner.textContent = '🎡 Vòng quay đang quay...';
+
+            const targetIndex = Math.floor(Math.random() * wheelItems.length);
+            const sliceAngle = (Math.PI * 2) / wheelItems.length;
+            const pointerAngle = -Math.PI / 2;
+            const sliceCenterOffset = targetIndex * sliceAngle + sliceAngle / 2;
+            const extraSpins = 6 * Math.PI * 2;
+
+            const startAngle = wheelAngle;
+            const desiredMod = ((pointerAngle - sliceCenterOffset) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
+            const currentMod = ((startAngle % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+            let deltaToSlice = desiredMod - currentMod;
+            if (deltaToSlice < 0) deltaToSlice += Math.PI * 2;
+
+            const totalDelta = extraSpins + deltaToSlice;
+            const duration = 3600;
+            const startTime = performance.now();
+            lastWheelFrameTime = startTime;
+
+            function animateWheel(now) {
+                if (document.hidden) {
+                    lastWheelFrameTime = now;
+                    wheelAnimId = requestAnimationFrame(animateWheel);
+                    return;
+                }
+                const sinceLastFrame = now - lastWheelFrameTime;
+                if (sinceLastFrame < frameIntervalMs) {
+                    wheelAnimId = requestAnimationFrame(animateWheel);
+                    return;
+                }
+                lastWheelFrameTime = now - (sinceLastFrame % frameIntervalMs);
+
+                const elapsed = now - startTime;
+                const t = Math.min(1, elapsed / duration);
+                const easeOut = 1 - Math.pow(1 - t, 3.2);
+                wheelAngle = startAngle + totalDelta * easeOut;
+                drawWheel();
+
+                if (t < 1) {
+                    wheelAnimId = requestAnimationFrame(animateWheel);
+                } else {
+                    wheelAnimId = null;
+                    isSpinningWheel = false;
+                    const wonWish = wheelItems[targetIndex];
+                    const card = document.getElementById('wheelResultCard');
+                    const badge = document.getElementById('wheelResultBadge');
+                    const textEl = document.getElementById('wheelResultText');
+                    if (card && badge && textEl && wonWish) {
+                        badge.textContent = `${wonWish.emoji} Ô #${targetIndex + 1}/20 • ${wonWish.periodLabel} #${wonWish.number}/1000`;
+                        textEl.textContent = formatWishText(wonWish.text);
+                        card.classList.remove('hidden');
+                    }
+                    if (banner) {
+                        banner.textContent = '✨ Bạn đã sử dụng hết 1 lượt quay vòng quay!';
+                    }
+                    if (wonWish) {
+                        addWishToCollection(wonWish, `🎡 Vòng quay ô #${targetIndex + 1}`);
+                    }
+                    launchCelebration(50);
+                }
+            }
+
+            wheelAnimId = requestAnimationFrame(animateWheel);
+        }
+
+        // Chế độ 3: Trò chơi xếp hình Block Blast 8x8 tối ưu DOM
+        const BB_SIZE = 8;
+        const BB_BEST_KEY = 'block_blast_best_score_v1';
+        const BB_SHAPES = [
+            { matrix: [[1]], color: '#F43F5E' },
+            { matrix: [[1, 1]], color: '#EC4899' },
+            { matrix: [[1], [1]], color: '#A855F7' },
+            { matrix: [[1, 1, 1]], color: '#6366F1' },
+            { matrix: [[1], [1], [1]], color: '#3B82F6' },
+            { matrix: [[1, 1], [1, 1]], color: '#10B981' },
+            { matrix: [[1, 0], [1, 0], [1, 1]], color: '#F59E0B' },
+            { matrix: [[0, 1], [0, 1], [1, 1]], color: '#F97316' },
+            { matrix: [[1, 1, 1], [0, 1, 0]], color: '#14B8A6' },
+            { matrix: [[1, 1, 1, 1]], color: '#06B6D4' }
+        ];
+
+        let bbInitialized = false;
+        let bbGrid = [];
+        let bbCells = [];
+        let bbTrayPieces = [null, null, null];
+        let bbScore = 0;
+        let bbBestScore = 0;
+        let activeDrag = null;
+
+        function initBlockBlastIfNeeded() {
+            if (!bbInitialized) {
+                try {
+                    bbBestScore = Number(localStorage.getItem(BB_BEST_KEY) || 0) || 0;
+                } catch (_) {
+                    bbBestScore = 0;
+                }
+                buildBoardDomOnce();
+                resetBlockBlast();
+                bindGlobalDragEvents();
+                bbInitialized = true;
+            } else {
+                syncBoardDom();
+                renderTrayDom();
+            }
+        }
+
+        function buildBoardDomOnce() {
+            const boardEl = document.getElementById('bbBoard');
+            if (!boardEl) return;
+            boardEl.innerHTML = '';
+            bbCells = [];
+            for (let r = 0; r < BB_SIZE; r++) {
+                const rowArr = [];
+                for (let c = 0; c < BB_SIZE; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'board-cell';
+                    cell.dataset.r = String(r);
+                    cell.dataset.c = String(c);
+                    boardEl.appendChild(cell);
+                    rowArr.push(cell);
+                }
+                bbCells.push(rowArr);
+            }
+        }
+
+        function resetBlockBlast() {
+            bbGrid = Array.from({ length: BB_SIZE }, () => Array(BB_SIZE).fill(null));
+            bbScore = 0;
+            updateScoreUI();
+            spawnNewTrayPieces();
+            syncBoardDom();
+        }
+
+        function updateScoreUI() {
+            const scoreEl = document.getElementById('bbScore');
+            const bestEl = document.getElementById('bbBestScore');
+            if (scoreEl) scoreEl.textContent = String(bbScore);
+            if (bbScore > bbBestScore) {
+                bbBestScore = bbScore;
+                try {
+                    localStorage.setItem(BB_BEST_KEY, String(bbBestScore));
+                } catch (_) {}
+            }
+            if (bestEl) bestEl.textContent = String(bbBestScore);
+        }
+
+        function spawnNewTrayPieces() {
+            bbTrayPieces = [0, 1, 2].map(() => {
+                const tpl = BB_SHAPES[Math.floor(Math.random() * BB_SHAPES.length)];
+                return {
+                    matrix: tpl.matrix.map((row) => [...row]),
+                    color: tpl.color
+                };
+            });
+            renderTrayDom();
+        }
+
+        function clearBoardPreview() {
+            for (let r = 0; r < BB_SIZE; r++) {
+                for (let c = 0; c < BB_SIZE; c++) {
+                    bbCells[r][c].classList.remove('preview-valid', 'preview-invalid');
+                }
+            }
+        }
+
+        function syncBoardDom() {
+            for (let r = 0; r < BB_SIZE; r++) {
+                for (let c = 0; c < BB_SIZE; c++) {
+                    const cell = bbCells[r][c];
+                    const color = bbGrid[r][c];
+                    cell.classList.remove('preview-valid', 'preview-invalid');
+                    if (color) {
+                        cell.classList.add('filled');
+                        cell.style.backgroundColor = color;
+                    } else {
+                        cell.classList.remove('filled');
+                        cell.style.backgroundColor = '';
+                    }
+                }
+            }
+        }
+
+        function canPlacePiece(matrix, startR, startC) {
+            for (let r = 0; r < matrix.length; r++) {
+                for (let c = 0; c < matrix[r].length; c++) {
+                    if (!matrix[r][c]) continue;
+                    const tr = startR + r;
+                    const tc = startC + c;
+                    if (tr < 0 || tr >= BB_SIZE || tc < 0 || tc >= BB_SIZE) return false;
+                    if (bbGrid[tr][tc]) return false;
+                }
+            }
+            return true;
+        }
+
+        function computeAnchorFromPoint(matrix, clientX, clientY) {
+            const boardEl = document.getElementById('bbBoard');
+            if (!boardEl) return null;
+            const rect = boardEl.getBoundingClientRect();
+            const cellW = rect.width / BB_SIZE;
+            const cellH = rect.height / BB_SIZE;
+            const liftedY = clientY - Math.max(44, cellH * 1.4);
+            const col = Math.floor((clientX - rect.left) / cellW);
+            const row = Math.floor((liftedY - rect.top) / cellH);
+            const startR = row - Math.floor(matrix.length / 2);
+            const startC = col - Math.floor(matrix[0].length / 2);
+            return { startR, startC };
+        }
+
+        function updateBoardPreview(matrix, clientX, clientY) {
+            clearBoardPreview();
+            const anchor = computeAnchorFromPoint(matrix, clientX, clientY);
+            if (!anchor) return;
+            const { startR, startC } = anchor;
+            const valid = canPlacePiece(matrix, startR, startC);
+            for (let r = 0; r < matrix.length; r++) {
+                for (let c = 0; c < matrix[r].length; c++) {
+                    if (!matrix[r][c]) continue;
+                    const tr = startR + r;
+                    const tc = startC + c;
+                    if (tr >= 0 && tr < BB_SIZE && tc >= 0 && tc < BB_SIZE) {
+                        bbCells[tr][tc].classList.add(valid ? 'preview-valid' : 'preview-invalid');
+                    }
+                }
+            }
+        }
+
+        function placePieceAndClearLines(piece, startR, startC) {
+            let placedCount = 0;
+            for (let r = 0; r < piece.matrix.length; r++) {
+                for (let c = 0; c < piece.matrix[r].length; c++) {
+                    if (!piece.matrix[r][c]) continue;
+                    bbGrid[startR + r][startC + c] = piece.color;
+                    placedCount++;
+                }
+            }
+
+            const fullRows = [];
+            const fullCols = [];
+
+            for (let r = 0; r < BB_SIZE; r++) {
+                if (bbGrid[r].every((v) => v !== null)) fullRows.push(r);
+            }
+            for (let c = 0; c < BB_SIZE; c++) {
+                let colFull = true;
+                for (let r = 0; r < BB_SIZE; r++) {
+                    if (bbGrid[r][c] === null) {
+                        colFull = false;
+                        break;
+                    }
+                }
+                if (colFull) fullCols.push(c);
+            }
+
+            fullRows.forEach((r) => {
+                for (let c = 0; c < BB_SIZE; c++) bbGrid[r][c] = null;
+            });
+            fullCols.forEach((c) => {
+                for (let r = 0; r < BB_SIZE; r++) bbGrid[r][c] = null;
+            });
+
+            const linesCleared = fullRows.length + fullCols.length;
+            bbScore += placedCount * 10 + linesCleared * 100;
+            updateScoreUI();
+            syncBoardDom();
+
+            if (linesCleared > 0) {
+                const bonusWish = getRandomWishes(1)[0];
+                if (bonusWish) {
+                    addWishToCollection(bonusWish, `🧩 Block Blast (+${linesCleared} hàng)`);
+                    showWishToast(
+                        `${bonusWish.emoji} Phá ${linesCleared} hàng! (${bonusWish.periodLabel} #${bonusWish.number}/1000)`,
+                        formatWishText(bonusWish.text)
+                    );
+                }
+                launchCelebration(35);
+            }
+        }
+
+        function hasAnyMoveLeft() {
+            const activePieces = bbTrayPieces.filter(Boolean);
+            if (activePieces.length === 0) return true;
+            for (const piece of activePieces) {
+                for (let r = 0; r < BB_SIZE; r++) {
+                    for (let c = 0; c < BB_SIZE; c++) {
+                        if (canPlacePiece(piece.matrix, r, c)) return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        function renderTrayDom() {
+            const trayEl = document.getElementById('bbTray');
+            if (!trayEl) return;
+            trayEl.innerHTML = '';
+
+            bbTrayPieces.forEach((piece, slotIndex) => {
+                const slot = document.createElement('div');
+                slot.className = 'piece-slot rounded-2xl bg-slate-900/65 border border-white/10 p-2';
+                if (!piece) {
+                    trayEl.appendChild(slot);
+                    return;
+                }
+
+                const gridEl = document.createElement('div');
+                gridEl.className = 'piece-grid';
+                gridEl.style.gridTemplateColumns = `repeat(${piece.matrix[0].length}, 16px)`;
+
+                piece.matrix.forEach((row) => {
+                    row.forEach((val) => {
+                        const sq = document.createElement('div');
+                        sq.className = 'piece-cell';
+                        if (val) {
+                            sq.style.backgroundColor = piece.color;
+                            sq.style.boxShadow = 'inset 0 1px 2px rgba(255,255,255,0.4)';
+                        } else {
+                            sq.style.backgroundColor = 'transparent';
+                        }
+                        gridEl.appendChild(sq);
+                    });
+                });
+
+                const startDrag = (clientX, clientY) => {
+                    activeDrag = { slotIndex, piece, x: clientX, y: clientY };
+                    const floating = document.getElementById('dragFloatingPiece');
+                    if (floating) {
+                        floating.innerHTML = '';
+                        const clone = gridEl.cloneNode(true);
+                        clone.style.transform = 'scale(1.45)';
+                        floating.appendChild(clone);
+                        floating.style.display = 'block';
+                        floating.style.left = `${clientX}px`;
+                        floating.style.top = `${clientY}px`;
+                    }
+                    updateBoardPreview(piece.matrix, clientX, clientY);
+                };
+
+                gridEl.addEventListener('mousedown', (e) => {
+                    if (e.button !== 0) return;
+                    e.preventDefault();
+                    startDrag(e.clientX, e.clientY);
+                });
+
+                gridEl.addEventListener('touchstart', (e) => {
+                    if (!e.touches.length) return;
+                    e.preventDefault();
+                    const t = e.touches[0];
+                    startDrag(t.clientX, t.clientY);
+                }, { passive: false });
+
+                slot.appendChild(gridEl);
+                trayEl.appendChild(slot);
             });
         }
 
-        function switchMode(mode) {
-            currentMode = mode;
-            const wheelSection = document.getElementById('wheelSection');
-            const boxSection = document.getElementById('boxSection');
-            const modeBadgeText = document.getElementById('modeBadgeText');
-            const statusSubtitle = document.getElementById('statusSubtitle');
-            const turnFooterText = document.getElementById('turnFooterText');
-            const switchModeBtn = document.getElementById('switchModeBtn');
+        function bindGlobalDragEvents() {
+            const moveAt = (clientX, clientY) => {
+                if (!activeDrag) return;
+                activeDrag.x = clientX;
+                activeDrag.y = clientY;
+                const floating = document.getElementById('dragFloatingPiece');
+                if (floating) {
+                    floating.style.left = `${clientX}px`;
+                    floating.style.top = `${clientY}px`;
+                }
+                updateBoardPreview(activeDrag.piece.matrix, clientX, clientY);
+            };
 
-            if (switchModeBtn) {
-                switchModeBtn.classList.remove('hidden');
-            }
+            const endAt = (clientX, clientY) => {
+                if (!activeDrag) return;
+                const { slotIndex, piece } = activeDrag;
+                activeDrag = null;
 
-            if (statusSubtitle) {
-                statusSubtitle.classList.remove('text-amber-200', 'font-semibold');
-                statusSubtitle.classList.add('text-indigo-200/90');
-            }
+                const floating = document.getElementById('dragFloatingPiece');
+                if (floating) {
+                    floating.style.display = 'none';
+                    floating.innerHTML = '';
+                }
 
-            if (mode === 'wheel') {
-                if (boxSection) boxSection.classList.add('hidden');
-                if (wheelSection) {
-                    wheelSection.classList.remove('hidden');
-                    wheelSection.classList.add('flex');
+                clearBoardPreview();
+                const anchor = computeAnchorFromPoint(piece.matrix, clientX, clientY);
+                if (anchor && canPlacePiece(piece.matrix, anchor.startR, anchor.startC)) {
+                    placePieceAndClearLines(piece, anchor.startR, anchor.startC);
+                    bbTrayPieces[slotIndex] = null;
+
+                    if (bbTrayPieces.every((item) => item === null)) {
+                        spawnNewTrayPieces();
+                    } else {
+                        renderTrayDom();
+                    }
+
+                    if (!hasAnyMoveLeft()) {
+                        const endWish = getRandomWishes(1)[0];
+                        if (endWish) addWishToCollection(endWish, '🧩 Kết thúc Block Blast');
+                        showWishToast(
+                            `🏁 Hết nước đi! Điểm: ${bbScore}`,
+                            endWish ? formatWishText(endWish.text) : `Chúc ${recipientName} nghỉ ngơi thư giãn nhé!`
+                        );
+                    }
                 }
-                if (modeBadgeText) {
-                    modeBadgeText.textContent = 'Vòng quay 20 lời chúc • 1 lượt quay';
-                }
-                if (statusSubtitle) {
-                    statusSubtitle.textContent = 'Bấm nút QUAY ở giữa để nhận ngẫu nhiên 1 trong 20 lời chúc ngủ ngon!';
-                }
-                if (turnFooterText) {
-                    turnFooterText.innerHTML = '🎡 Bạn đang có <span class="text-pink-300 font-bold">1 lượt quay</span> — chúc may mắn nhé!';
-                }
-                initWheelData();
-            } else {
-                if (wheelSection) {
-                    wheelSection.classList.add('hidden');
-                    wheelSection.classList.remove('flex');
-                }
-                if (boxSection) boxSection.classList.remove('hidden');
-                if (modeBadgeText) {
-                    modeBadgeText.textContent = '9 hộp quà bí mật • Chỉ 1 lượt mở';
-                }
-                if (statusSubtitle) {
-                    statusSubtitle.textContent = 'Có 9 lời chúc ngủ ngon bí mật — chỉ được mở 1 hộp duy nhất nhé!';
-                }
-                if (turnFooterText) {
-                    turnFooterText.innerHTML = '🎁 Bạn đang có <span class="text-pink-300 font-bold">1 lượt mở quà</span> — hãy chọn hộp mình thích nhất!';
-                }
-                renderShuffledGifts();
-            }
+            };
+
+            window.addEventListener('mousemove', (e) => moveAt(e.clientX, e.clientY));
+            window.addEventListener('mouseup', (e) => endAt(e.clientX, e.clientY));
+
+            window.addEventListener('touchmove', (e) => {
+                if (!activeDrag || !e.touches.length) return;
+                e.preventDefault();
+                const t = e.touches[0];
+                moveAt(t.clientX, t.clientY);
+            }, { passive: false });
+
+            window.addEventListener('touchend', (e) => {
+                if (!activeDrag) return;
+                const t = (e.changedTouches && e.changedTouches[0]) || { clientX: activeDrag.x, clientY: activeDrag.y };
+                endAt(t.clientX, t.clientY);
+            });
         }
 
+        // Tạm dừng hiệu ứng nặng khi ẩn tab để chống nóng máy
+        document.addEventListener('visibilitychange', () => {
+            document.body.classList.toggle('paused-animations', document.hidden);
+            if (!document.hidden && confettiParticles.length > 0 && !confettiAnimId) {
+                lastConfettiFrameTime = performance.now();
+                confettiAnimId = requestAnimationFrame(stepConfetti);
+            }
+        });
+
         window.addEventListener('resize', () => {
+            resizeConfettiCanvas();
+            createStarfield();
             if (currentMode === 'wheel') {
+                resizeWheelCanvas();
                 drawWheel();
             }
         });
 
         window.addEventListener('DOMContentLoaded', () => {
+            loadAppSettings();
+            loadSavedRecipientName();
+            loadCollectedWishes();
+            resizeConfettiCanvas();
             createStarfield();
-            renderShuffledGifts();
-            updateMusicUI();
-
-            const musicToggleBtn = document.getElementById('musicToggleBtn');
-            if (musicToggleBtn) {
-                musicToggleBtn.addEventListener('click', () => {
-                    if (isMusicPlaying) {
-                        userMutedMusic = true;
-                        stopLullabyMusic();
-                    } else {
-                        userMutedMusic = false;
-                        startLullabyMusic();
-                    }
-                });
-            }
-
-            const nextTrackBtn = document.getElementById('nextTrackBtn');
-            if (nextTrackBtn) {
-                nextTrackBtn.addEventListener('click', async () => {
-                    selectRandomTrack(currentTrackIndex);
-                    updateMusicUI();
-                    if (isMusicPlaying || !userMutedMusic) {
-                        userMutedMusic = false;
-                        await startLullabyMusic();
-                    }
-                });
-            }
-
-            const closeMusicModalBtn = document.getElementById('closeMusicModalBtn');
-            if (closeMusicModalBtn) {
-                closeMusicModalBtn.addEventListener('click', () => {
-                    hideMusicIntroModal();
-                    showNameInputModal();
-                });
-            }
-
-            const enableMusicFromModalBtn = document.getElementById('enableMusicFromModalBtn');
-            if (enableMusicFromModalBtn) {
-                enableMusicFromModalBtn.addEventListener('click', async () => {
-                    userMutedMusic = false;
-                    await startLullabyMusic();
-                    hideMusicIntroModal();
-                    showNameInputModal();
-                });
-            }
-
-            const nameInputForm = document.getElementById('nameInputForm');
-            const recipientNameInput = document.getElementById('recipientNameInput');
-            const nameErrorText = document.getElementById('nameErrorText');
-            if (nameInputForm && recipientNameInput) {
-                nameInputForm.addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    const value = recipientNameInput.value.trim();
-                    if (!value) {
-                        if (nameErrorText) nameErrorText.classList.remove('hidden');
-                        recipientNameInput.focus();
-                        return;
-                    }
-                    if (nameErrorText) nameErrorText.classList.add('hidden');
-                    applyRecipientName(value);
-                    hideNameInputModal();
-                    showModeSelectModal();
-                });
-            }
-
-            const chooseWheelModeBtn = document.getElementById('chooseWheelModeBtn');
-            if (chooseWheelModeBtn) {
-                chooseWheelModeBtn.addEventListener('click', () => {
-                    hideModeSelectModal();
-                    switchMode('wheel');
-                });
-            }
-
-            const chooseBoxModeBtn = document.getElementById('chooseBoxModeBtn');
-            if (chooseBoxModeBtn) {
-                chooseBoxModeBtn.addEventListener('click', () => {
-                    hideModeSelectModal();
-                    switchMode('box');
-                });
-            }
-
-            const switchModeBtn = document.getElementById('switchModeBtn');
-            if (switchModeBtn) {
-                switchModeBtn.addEventListener('click', () => {
-                    showModeSelectModal();
-                });
-            }
-
-            const spinWheelBtn = document.getElementById('spinWheelBtn');
-            if (spinWheelBtn) {
-                spinWheelBtn.addEventListener('click', spinWheel);
-            }
-
-            const wheelCanvas = document.getElementById('wheelCanvas');
-            if (wheelCanvas) {
-                wheelCanvas.addEventListener('click', spinWheel);
-            }
+            applyPeriodTheme(activePeriod);
+            updateRealtimeClockAndTheme(true);
+            setInterval(() => updateRealtimeClockAndTheme(false), 30000);
         });
     </script>
 </body>
